@@ -1,0 +1,72 @@
+[
+  {
+    "service": "cloudfront",
+    "pricing_type": "monthly",
+    "baseline_monthly": 8,
+    "currency": "USD",
+    "unit": "per_distribution_baseline",
+    "region_basis": "global_edge_estimate",
+    "assumptions": ["light_to_moderate_traffic"],
+    "notes": "Traffic-based usage varies more than the baseline."
+  },
+  {
+    "service": "alb",
+    "pricing_type": "monthly",
+    "baseline_monthly": 22,
+    "currency": "USD",
+    "unit": "per_load_balancer",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["single_alb", "moderate_traffic"],
+    "notes": "Planning estimate for Sprint 1; refine later with real usage bands."
+  },
+  {
+    "service": "ecs_fargate",
+    "pricing_type": "monthly",
+    "baseline_monthly": 28,
+    "currency": "USD",
+    "unit": "per_service_baseline",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["small_service", "two_tasks_baseline"],
+    "notes": "Represents compute baseline only."
+  },
+  {
+    "service": "rds_single_az",
+    "pricing_type": "monthly",
+    "baseline_monthly": 45,
+    "currency": "USD",
+    "unit": "per_instance",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["general_purpose_instance", "single_az"],
+    "notes": "Lower resilience, lower cost."
+  },
+  {
+    "service": "rds_multi_az",
+    "pricing_type": "monthly",
+    "baseline_monthly": 95,
+    "currency": "USD",
+    "unit": "per_instance",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["general_purpose_instance", "multi_az"],
+    "notes": "Production-oriented default for balanced options."
+  },
+  {
+    "service": "redis",
+    "pricing_type": "monthly",
+    "baseline_monthly": 60,
+    "currency": "USD",
+    "unit": "per_node",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["small_cache_cluster"],
+    "notes": "Use as cache/session layer only."
+  },
+  {
+    "service": "s3",
+    "pricing_type": "monthly",
+    "baseline_monthly": 5,
+    "currency": "USD",
+    "unit": "per_bucket_baseline",
+    "region_basis": "us-east-1_planning_estimate",
+    "assumptions": ["artifact_storage", "low_request_volume"],
+    "notes": "Primarily storage and artifact delivery."
+  }
+]

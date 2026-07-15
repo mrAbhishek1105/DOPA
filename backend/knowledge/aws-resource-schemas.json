@@ -1,0 +1,546 @@
+{
+  "version": "1.0.0",
+  "provider": "aws",
+  "source": "hashicorp/aws",
+  "synced_at": "2026-06-19T03:15:20.152616+00:00",
+  "provider_version": "5.40.0",
+  "mode": "curated",
+  "resources": [
+    {
+      "resource_type": "aws_db_instance",
+      "logical_component": "db_instance",
+      "description": "AWS Resource: aws_db_instance",
+      "exposure": {
+        "basic_fields": [
+          "instance_class",
+          "tags",
+          "engine",
+          "engine_version"
+        ],
+        "advanced_fields": [
+          "allocated_storage",
+          "allow_major_version_upgrade",
+          "apply_immediately",
+          "auto_minor_version_upgrade",
+          "availability_zone",
+          "backup_retention_period",
+          "backup_target",
+          "backup_window",
+          "ca_cert_identifier",
+          "character_set_name"
+        ],
+        "expert_fields": [
+          "copy_tags_to_snapshot",
+          "custom_iam_instance_profile",
+          "customer_owned_ip_enabled",
+          "db_name",
+          "db_subnet_group_name",
+          "delete_automated_backups",
+          "deletion_protection",
+          "domain",
+          "domain_auth_secret_arn",
+          "domain_dns_ips"
+        ],
+        "managed_fields": [
+          "id",
+          "arn",
+          "tags_all"
+        ]
+      },
+      "required_fields": [
+        "instance_class"
+      ],
+      "optional_fields": [
+        "allocated_storage",
+        "allow_major_version_upgrade",
+        "apply_immediately",
+        "auto_minor_version_upgrade",
+        "availability_zone",
+        "backup_retention_period",
+        "backup_target",
+        "backup_window",
+        "ca_cert_identifier",
+        "character_set_name",
+        "copy_tags_to_snapshot",
+        "custom_iam_instance_profile",
+        "customer_owned_ip_enabled",
+        "db_name",
+        "db_subnet_group_name",
+        "delete_automated_backups",
+        "deletion_protection",
+        "domain",
+        "domain_auth_secret_arn",
+        "domain_dns_ips",
+        "domain_fqdn",
+        "domain_iam_role_name",
+        "domain_ou",
+        "enabled_cloudwatch_logs_exports",
+        "engine",
+        "engine_version",
+        "final_snapshot_identifier",
+        "iam_database_authentication_enabled",
+        "id",
+        "identifier",
+        "identifier_prefix",
+        "iops",
+        "kms_key_id",
+        "license_model",
+        "maintenance_window",
+        "manage_master_user_password",
+        "master_user_secret_kms_key_id",
+        "max_allocated_storage",
+        "monitoring_interval",
+        "monitoring_role_arn",
+        "multi_az",
+        "nchar_character_set_name",
+        "network_type",
+        "option_group_name",
+        "parameter_group_name",
+        "password",
+        "performance_insights_enabled",
+        "performance_insights_kms_key_id",
+        "performance_insights_retention_period",
+        "port",
+        "publicly_accessible",
+        "replica_mode",
+        "replicate_source_db",
+        "skip_final_snapshot",
+        "snapshot_identifier",
+        "storage_encrypted",
+        "storage_throughput",
+        "storage_type",
+        "tags",
+        "tags_all",
+        "timezone",
+        "username",
+        "vpc_security_group_ids"
+      ],
+      "computed_fields": [
+        "address",
+        "allocated_storage",
+        "arn",
+        "availability_zone",
+        "backup_retention_period",
+        "backup_target",
+        "backup_window",
+        "ca_cert_identifier",
+        "character_set_name",
+        "db_name",
+        "db_subnet_group_name",
+        "domain_fqdn",
+        "endpoint",
+        "engine",
+        "engine_version",
+        "engine_version_actual",
+        "hosted_zone_id",
+        "id",
+        "identifier",
+        "identifier_prefix",
+        "iops",
+        "kms_key_id",
+        "latest_restorable_time",
+        "license_model",
+        "listener_endpoint",
+        "maintenance_window",
+        "master_user_secret",
+        "master_user_secret_kms_key_id",
+        "monitoring_role_arn",
+        "multi_az",
+        "nchar_character_set_name",
+        "network_type",
+        "option_group_name",
+        "parameter_group_name",
+        "performance_insights_kms_key_id",
+        "performance_insights_retention_period",
+        "port",
+        "replica_mode",
+        "replicas",
+        "resource_id",
+        "snapshot_identifier",
+        "status",
+        "storage_throughput",
+        "storage_type",
+        "tags_all",
+        "timezone",
+        "username",
+        "vpc_security_group_ids"
+      ],
+      "sensitive_fields": [
+        "password"
+      ],
+      "recommended_defaults": {},
+      "validation_notes": [],
+      "allowed_modes": [
+        "basic",
+        "advanced",
+        "expert"
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "resource_type": "aws_ecs_service",
+      "logical_component": "ecs_service",
+      "description": "AWS Resource: aws_ecs_service",
+      "exposure": {
+        "basic_fields": [
+          "name",
+          "tags"
+        ],
+        "advanced_fields": [
+          "cluster",
+          "deployment_maximum_percent",
+          "deployment_minimum_healthy_percent",
+          "desired_count",
+          "enable_ecs_managed_tags",
+          "enable_execute_command",
+          "force_new_deployment",
+          "health_check_grace_period_seconds",
+          "iam_role",
+          "id"
+        ],
+        "expert_fields": [
+          "launch_type",
+          "platform_version",
+          "propagate_tags",
+          "scheduling_strategy",
+          "tags_all",
+          "task_definition",
+          "triggers",
+          "wait_for_steady_state"
+        ],
+        "managed_fields": [
+          "id",
+          "arn",
+          "tags_all"
+        ]
+      },
+      "required_fields": [
+        "name"
+      ],
+      "optional_fields": [
+        "cluster",
+        "deployment_maximum_percent",
+        "deployment_minimum_healthy_percent",
+        "desired_count",
+        "enable_ecs_managed_tags",
+        "enable_execute_command",
+        "force_new_deployment",
+        "health_check_grace_period_seconds",
+        "iam_role",
+        "id",
+        "launch_type",
+        "platform_version",
+        "propagate_tags",
+        "scheduling_strategy",
+        "tags",
+        "tags_all",
+        "task_definition",
+        "triggers",
+        "wait_for_steady_state"
+      ],
+      "computed_fields": [
+        "cluster",
+        "iam_role",
+        "id",
+        "launch_type",
+        "platform_version",
+        "tags_all",
+        "triggers"
+      ],
+      "sensitive_fields": [],
+      "recommended_defaults": {},
+      "validation_notes": [],
+      "allowed_modes": [
+        "basic",
+        "advanced",
+        "expert"
+      ],
+      "tags": [
+        "ecs"
+      ]
+    },
+    {
+      "resource_type": "aws_instance",
+      "logical_component": "instance",
+      "description": "AWS Resource: aws_instance",
+      "exposure": {
+        "basic_fields": [
+          "tags",
+          "instance_type",
+          "ami"
+        ],
+        "advanced_fields": [
+          "associate_public_ip_address",
+          "availability_zone",
+          "cpu_core_count",
+          "cpu_threads_per_core",
+          "disable_api_stop",
+          "disable_api_termination",
+          "ebs_optimized",
+          "get_password_data",
+          "hibernation",
+          "host_id"
+        ],
+        "expert_fields": [
+          "host_resource_group_arn",
+          "iam_instance_profile",
+          "id",
+          "instance_initiated_shutdown_behavior",
+          "ipv6_address_count",
+          "ipv6_addresses",
+          "key_name",
+          "monitoring",
+          "placement_group",
+          "placement_partition_number"
+        ],
+        "managed_fields": [
+          "id",
+          "arn",
+          "tags_all"
+        ]
+      },
+      "required_fields": [],
+      "optional_fields": [
+        "ami",
+        "associate_public_ip_address",
+        "availability_zone",
+        "cpu_core_count",
+        "cpu_threads_per_core",
+        "disable_api_stop",
+        "disable_api_termination",
+        "ebs_optimized",
+        "get_password_data",
+        "hibernation",
+        "host_id",
+        "host_resource_group_arn",
+        "iam_instance_profile",
+        "id",
+        "instance_initiated_shutdown_behavior",
+        "instance_type",
+        "ipv6_address_count",
+        "ipv6_addresses",
+        "key_name",
+        "monitoring",
+        "placement_group",
+        "placement_partition_number",
+        "private_ip",
+        "secondary_private_ips",
+        "security_groups",
+        "source_dest_check",
+        "subnet_id",
+        "tags",
+        "tags_all",
+        "tenancy",
+        "user_data",
+        "user_data_base64",
+        "user_data_replace_on_change",
+        "volume_tags",
+        "vpc_security_group_ids"
+      ],
+      "computed_fields": [
+        "ami",
+        "arn",
+        "associate_public_ip_address",
+        "availability_zone",
+        "cpu_core_count",
+        "cpu_threads_per_core",
+        "disable_api_stop",
+        "disable_api_termination",
+        "ebs_optimized",
+        "host_id",
+        "host_resource_group_arn",
+        "iam_instance_profile",
+        "id",
+        "instance_initiated_shutdown_behavior",
+        "instance_lifecycle",
+        "instance_state",
+        "instance_type",
+        "ipv6_address_count",
+        "ipv6_addresses",
+        "key_name",
+        "monitoring",
+        "outpost_arn",
+        "password_data",
+        "placement_group",
+        "placement_partition_number",
+        "primary_network_interface_id",
+        "private_dns",
+        "private_ip",
+        "public_dns",
+        "public_ip",
+        "secondary_private_ips",
+        "security_groups",
+        "spot_instance_request_id",
+        "subnet_id",
+        "tags_all",
+        "tenancy",
+        "user_data",
+        "user_data_base64",
+        "vpc_security_group_ids"
+      ],
+      "sensitive_fields": [],
+      "recommended_defaults": {},
+      "validation_notes": [],
+      "allowed_modes": [
+        "basic",
+        "advanced",
+        "expert"
+      ],
+      "tags": [
+        "instance"
+      ]
+    },
+    {
+      "resource_type": "aws_s3_bucket",
+      "logical_component": "s3_bucket",
+      "description": "AWS Resource: aws_s3_bucket",
+      "exposure": {
+        "basic_fields": [
+          "tags",
+          "bucket"
+        ],
+        "advanced_fields": [
+          "acceleration_status",
+          "acl",
+          "bucket_prefix",
+          "force_destroy",
+          "id",
+          "object_lock_enabled",
+          "policy",
+          "request_payer",
+          "tags_all"
+        ],
+        "expert_fields": [],
+        "managed_fields": [
+          "id",
+          "arn",
+          "tags_all"
+        ]
+      },
+      "required_fields": [],
+      "optional_fields": [
+        "acceleration_status",
+        "acl",
+        "bucket",
+        "bucket_prefix",
+        "force_destroy",
+        "id",
+        "object_lock_enabled",
+        "policy",
+        "request_payer",
+        "tags",
+        "tags_all"
+      ],
+      "computed_fields": [
+        "acceleration_status",
+        "acl",
+        "arn",
+        "bucket",
+        "bucket_domain_name",
+        "bucket_prefix",
+        "bucket_regional_domain_name",
+        "hosted_zone_id",
+        "id",
+        "object_lock_enabled",
+        "policy",
+        "region",
+        "request_payer",
+        "tags_all",
+        "website_domain",
+        "website_endpoint"
+      ],
+      "sensitive_fields": [],
+      "recommended_defaults": {},
+      "validation_notes": [],
+      "allowed_modes": [
+        "basic",
+        "advanced",
+        "expert"
+      ],
+      "tags": [
+        "s3"
+      ]
+    },
+    {
+      "resource_type": "aws_vpc",
+      "logical_component": "vpc",
+      "description": "AWS Resource: aws_vpc",
+      "exposure": {
+        "basic_fields": [
+          "tags"
+        ],
+        "advanced_fields": [
+          "assign_generated_ipv6_cidr_block",
+          "cidr_block",
+          "enable_dns_hostnames",
+          "enable_dns_support",
+          "enable_network_address_usage_metrics",
+          "id",
+          "instance_tenancy",
+          "ipv4_ipam_pool_id",
+          "ipv4_netmask_length",
+          "ipv6_cidr_block"
+        ],
+        "expert_fields": [
+          "ipv6_cidr_block_network_border_group",
+          "ipv6_ipam_pool_id",
+          "ipv6_netmask_length",
+          "tags_all"
+        ],
+        "managed_fields": [
+          "id",
+          "arn",
+          "tags_all"
+        ]
+      },
+      "required_fields": [],
+      "optional_fields": [
+        "assign_generated_ipv6_cidr_block",
+        "cidr_block",
+        "enable_dns_hostnames",
+        "enable_dns_support",
+        "enable_network_address_usage_metrics",
+        "id",
+        "instance_tenancy",
+        "ipv4_ipam_pool_id",
+        "ipv4_netmask_length",
+        "ipv6_cidr_block",
+        "ipv6_cidr_block_network_border_group",
+        "ipv6_ipam_pool_id",
+        "ipv6_netmask_length",
+        "tags",
+        "tags_all"
+      ],
+      "computed_fields": [
+        "arn",
+        "cidr_block",
+        "default_network_acl_id",
+        "default_route_table_id",
+        "default_security_group_id",
+        "dhcp_options_id",
+        "enable_dns_hostnames",
+        "enable_network_address_usage_metrics",
+        "id",
+        "ipv6_association_id",
+        "ipv6_cidr_block",
+        "ipv6_cidr_block_network_border_group",
+        "main_route_table_id",
+        "owner_id",
+        "tags_all"
+      ],
+      "sensitive_fields": [],
+      "recommended_defaults": {},
+      "validation_notes": [],
+      "allowed_modes": [
+        "basic",
+        "advanced",
+        "expert"
+      ],
+      "tags": [
+        "vpc"
+      ]
+    }
+  ]
+}

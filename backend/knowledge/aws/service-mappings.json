@@ -1,0 +1,212 @@
+{
+  "provider": "aws",
+  "mappings": {
+    "cdn_layer": {
+      "candidates": [
+        { "service": "cloudfront", "score": 95, "best_for": ["global_static_delivery", "api_acceleration", "ssl_termination"], "avoid_when": ["internal_only"] }
+      ]
+    },
+    "load_balancer": {
+      "candidates": [
+        { "service": "alb", "score": 95, "best_for": ["http_https", "containers", "microservices"], "avoid_when": ["tcp_only"] },
+        { "service": "nlb", "score": 70, "best_for": ["tcp_udp", "static_ips"], "avoid_when": ["http_routing_needed"] }
+      ]
+    },
+    "application_compute": {
+      "candidates": [
+        { "service": "ecs", "score": 90, "best_for": ["containers", "microservices", "webapps"], "avoid_when": ["full_k8s_needed"] },
+        { "service": "eks", "score": 75, "best_for": ["k8s_native", "complex_orchestration"], "avoid_when": ["small_team", "low_budget"] },
+        { "service": "ec2", "score": 60, "best_for": ["full_control", "legacy"], "avoid_when": ["managed_preferred"] }
+      ]
+    },
+    "function_compute": {
+      "candidates": [
+        { "service": "lambda", "score": 95, "best_for": ["event_driven", "variable_traffic", "simple_apis"], "avoid_when": ["long_running", "stateful"] }
+      ]
+    },
+    "compute_workers": {
+      "candidates": [
+        { "service": "ecs", "score": 85, "best_for": ["containerized_workers"], "avoid_when": [] },
+        { "service": "lambda", "score": 80, "best_for": ["short_lived_tasks"], "avoid_when": ["tasks_over_15min"] },
+        { "service": "batch", "score": 75, "best_for": ["scheduled_batch", "array_jobs"], "avoid_when": ["real_time_needed"] }
+      ]
+    },
+    "compute_training": {
+      "candidates": [
+        { "service": "sagemaker", "score": 90, "best_for": ["managed_training", "notebooks"], "avoid_when": ["maximum_control"] },
+        { "service": "ec2_gpu", "score": 70, "best_for": ["custom_frameworks"], "avoid_when": ["ops_overhead_concern"] }
+      ]
+    },
+    "compute_inference": {
+      "candidates": [
+        { "service": "sagemaker", "score": 85, "best_for": ["managed_endpoints"], "avoid_when": [] },
+        { "service": "ecs_gpu", "score": 70, "best_for": ["custom_inference"], "avoid_when": [] },
+        { "service": "lambda", "score": 50, "best_for": ["lightweight_inference"], "avoid_when": ["gpu_needed"] }
+      ]
+    },
+    "relational_database": {
+      "candidates": [
+        { "service": "aurora", "score": 90, "best_for": ["high_availability", "performance", "multi_az"], "avoid_when": ["low_budget"] },
+        { "service": "rds", "score": 80, "best_for": ["standard_sql", "cost_sensitive"], "avoid_when": ["global_distribution"] }
+      ]
+    },
+    "nosql_database": {
+      "candidates": [
+        { "service": "dynamodb", "score": 90, "best_for": ["key_value", "high_throughput", "serverless"], "avoid_when": ["complex_queries", "joins"] }
+      ]
+    },
+    "time_series_database": {
+      "candidates": [
+        { "service": "timestream", "score": 85, "best_for": ["iot_telemetry", "metrics"], "avoid_when": [] },
+        { "service": "dynamodb", "score": 60, "best_for": ["simple_timeseries"], "avoid_when": ["high_cardinality"] }
+      ]
+    },
+    "cache": {
+      "candidates": [
+        { "service": "elasticache_redis", "score": 90, "best_for": ["session_store", "caching", "pubsub"], "avoid_when": ["multi_gb_datasets"] },
+        { "service": "dynamodb_dax", "score": 60, "best_for": ["dynamodb_acceleration"], "avoid_when": ["general_purpose_cache"] }
+      ]
+    },
+    "object_storage": {
+      "candidates": [
+        { "service": "s3", "score": 95, "best_for": ["objects", "backups", "static_assets", "data_lake"], "avoid_when": [] }
+      ]
+    },
+    "message_queue": {
+      "candidates": [
+        { "service": "sqs", "score": 90, "best_for": ["decoupled_workers", "at_least_once"], "avoid_when": ["streaming_needed"] }
+      ]
+    },
+    "event_stream": {
+      "candidates": [
+        { "service": "kinesis", "score": 85, "best_for": ["real_time_streaming", "ingestion"], "avoid_when": ["low_throughput"] },
+        { "service": "msk", "score": 70, "best_for": ["kafka_compatible", "complex_streaming"], "avoid_when": ["low_budget", "small_team"] }
+      ]
+    },
+    "pubsub_messaging": {
+      "candidates": [
+        { "service": "sns", "score": 85, "best_for": ["notifications", "fanout"], "avoid_when": [] },
+        { "service": "eventbridge", "score": 80, "best_for": ["event_routing", "scheduled_tasks"], "avoid_when": [] }
+      ]
+    },
+    "realtime_gateway": {
+      "candidates": [
+        { "service": "api_gateway_websocket", "score": 85, "best_for": ["websocket_apis", "serverless_realtime"], "avoid_when": ["highly_stateful"] },
+        { "service": "appsync", "score": 80, "best_for": ["graphql_subscriptions", "real_time_data"], "avoid_when": ["simple_websocket_only"] },
+        { "service": "ecs_websocket", "score": 70, "best_for": ["custom_realtime", "stateful_connections"], "avoid_when": ["ops_overhead"] }
+      ]
+    },
+    "api_gateway": {
+      "candidates": [
+        { "service": "api_gateway_rest", "score": 90, "best_for": ["rest_apis", "throttling", "auth"], "avoid_when": [] }
+      ]
+    },
+    "event_source": {
+      "candidates": [
+        { "service": "eventbridge", "score": 85, "best_for": ["scheduled_events", "aws_events"], "avoid_when": [] },
+        { "service": "s3_event_notifications", "score": 70, "best_for": ["object_created_triggers"], "avoid_when": ["highly_custom"] }
+      ]
+    },
+    "dns": {
+      "candidates": [
+        { "service": "route53", "score": 90, "best_for": ["dns_management", "health_checks", "routing"], "avoid_when": [] }
+      ]
+    },
+    "monitoring": {
+      "candidates": [
+        { "service": "cloudwatch", "score": 85, "best_for": ["metrics", "logs", "alarms"], "avoid_when": [] },
+        { "service": "xray", "score": 60, "best_for": ["tracing", "performance_insights"], "avoid_when": [] }
+      ]
+    },
+    "secrets": {
+      "candidates": [
+        { "service": "secrets_manager", "score": 85, "best_for": ["secret_rotation", "database_creds"], "avoid_when": ["simple_strings_only"] },
+        { "service": "parameter_store", "score": 70, "best_for": ["config_values", "simple_secrets"], "avoid_when": ["rotation_needed"] }
+      ]
+    },
+    "identity": {
+      "candidates": [
+        { "service": "cognito", "score": 85, "best_for": ["user_pools", "social_login", "federation"], "avoid_when": ["enterprise_sso_only"] },
+        { "service": "iam", "score": 95, "best_for": ["aws_auth", "roles_policies"], "avoid_when": ["end_user_auth"] }
+      ]
+    },
+    "search_index": {
+      "candidates": [
+        { "service": "opensearch", "score": 85, "best_for": ["full_text_search", "analytics"], "avoid_when": ["low_budget"] }
+      ]
+    },
+    "media_ingestion": {
+      "candidates": [
+        { "service": "mediaconnect", "score": 75, "best_for": ["live_video_ingestion"], "avoid_when": [] },
+        { "service": "s3", "score": 60, "best_for": ["vod_upload"], "avoid_when": ["live_streaming"] }
+      ]
+    },
+    "media_transcoder": {
+      "candidates": [
+        { "service": "mediaconvert", "score": 85, "best_for": ["file_based_transcoding"], "avoid_when": [] },
+        { "service": "medialive", "score": 75, "best_for": ["live_channel_encoding"], "avoid_when": ["vod_only"] }
+      ]
+    },
+    "data_ingestion": {
+      "candidates": [
+        { "service": "glue", "score": 80, "best_for": ["etl", "crawlers", "cataloging"], "avoid_when": [] },
+        { "service": "kinesis_firehose", "score": 75, "best_for": ["streaming_ingestion_to_s3"], "avoid_when": ["complex_transforms"] }
+      ]
+    },
+    "data_catalog": {
+      "candidates": [
+        { "service": "glue_catalog", "score": 85, "best_for": ["table_catalog", "schema_management"], "avoid_when": [] }
+      ]
+    },
+    "query_engine": {
+      "candidates": [
+        { "service": "athena", "score": 85, "best_for": ["sql_on_s3", "ad_hoc_queries"], "avoid_when": ["high_concurrency"] },
+        { "service": "redshift", "score": 70, "best_for": ["warehousing", "complex_analytics"], "avoid_when": ["small_datasets"] }
+      ]
+    },
+    "visualization": {
+      "candidates": [
+        { "service": "quicksight", "score": 80, "best_for": ["dashboards", "bi"], "avoid_when": [] }
+      ]
+    },
+    "orchestrator": {
+      "candidates": [
+        { "service": "step_functions", "score": 85, "best_for": ["workflows", "state_machines"], "avoid_when": [] },
+        { "service": "airflow_mwaa", "score": 70, "best_for": ["complex_dag_pipelines"], "avoid_when": ["simple_workflows"] }
+      ]
+    },
+    "device_gateway": {
+      "candidates": [
+        { "service": "iot_core", "score": 85, "best_for": ["device_connectivity", "mqtt"], "avoid_when": ["non_iot"] }
+      ]
+    },
+    "device_registry": {
+      "candidates": [
+        { "service": "iot_device_management", "score": 80, "best_for": ["device_shadow", "registry"], "avoid_when": [] }
+      ]
+    }
+  },
+  "constraint_overrides": {
+    "low_budget": {
+      "exclude": ["eks", "msk", "aurora", "opensearch", "sagemaker", "mediaconvert", "glue", "redshift", "quicksight"],
+      "prefer": ["lambda", "dynamodb", "s3", "sqs", "cloudfront"]
+    },
+    "compliance_pci": {
+      "require": ["cloudtrail", "kms", "waf", "config"],
+      "preferred_compute": "ecs"
+    },
+    "compliance_hipaa": {
+      "require": ["cloudtrail", "kms", "config"],
+      "note": "Business Associate Agreement (BAA) required with AWS"
+    },
+    "small_team": {
+      "prefer_managed": true,
+      "exclude": ["eks", "msk", "ec2"],
+      "prefer": ["ecs", "lambda", "aurora", "rds", "dynamodb"]
+    },
+    "high_traffic": {
+      "prefer": ["cloudfront", "elasticache_redis", "dynamodb"],
+      "avoid_single_az": true
+    }
+  }
+}

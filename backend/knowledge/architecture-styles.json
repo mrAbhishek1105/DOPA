@@ -1,0 +1,187 @@
+[
+  {
+    "style_id": "three_tier_web",
+    "name": "Three-Tier Web Application",
+    "description": "Classic presentation, application, and data tier separation with load balancer fronting compute",
+    "applicable_intents": ["web_application", "internal_tool"],
+    "logical_components": [
+      "cdn_layer",
+      "load_balancer",
+      "application_compute",
+      "relational_database",
+      "object_storage",
+      "dns",
+      "monitoring",
+      "secrets"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "horizontal",
+      "network_isolation": "public_private_subnets"
+    },
+    "tags": ["web", "standard", "three-tier"]
+  },
+  {
+    "style_id": "realtime_messaging_platform",
+    "name": "Real-Time Messaging Platform",
+    "description": "Persistent connection handling, presence management, and instant message delivery with pub/sub",
+    "applicable_intents": ["realtime_messaging"],
+    "logical_components": [
+      "cdn_layer",
+      "load_balancer",
+      "realtime_gateway",
+      "application_compute",
+      "relational_database",
+      "cache",
+      "object_storage",
+      "pubsub_messaging",
+      "search_index",
+      "dns",
+      "monitoring",
+      "secrets",
+      "identity"
+    ],
+    "characteristics": {
+      "deployment_scope": "global_or_regional",
+      "scaling_strategy": "horizontal",
+      "latency_sensitivity": "very_high",
+      "network_isolation": "public_private_subnets"
+    },
+    "tags": ["realtime", "messaging", "websocket", "pubsub"]
+  },
+  {
+    "style_id": "event_driven_pipeline",
+    "name": "Event-Driven Pipeline",
+    "description": "Decoupled, asynchronous processing with event producers, queues/streams, and consumer workers",
+    "applicable_intents": ["event_driven_processing", "batch_processing"],
+    "logical_components": [
+      "event_source",
+      "message_queue",
+      "event_stream",
+      "compute_workers",
+      "relational_database",
+      "object_storage",
+      "monitoring",
+      "secrets"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "autoscaling_workers",
+      "processing_model": "async"
+    },
+    "tags": ["event-driven", "async", "queue", "stream"]
+  },
+  {
+    "style_id": "serverless_api",
+    "name": "Serverless API Backend",
+    "description": "Fully managed, auto-scaling API with no infrastructure management, ideal for variable workloads",
+    "applicable_intents": ["serverless_api", "web_application"],
+    "logical_components": [
+      "cdn_layer",
+      "api_gateway",
+      "function_compute",
+      "nosql_database",
+      "object_storage",
+      "dns",
+      "monitoring",
+      "secrets",
+      "identity"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "auto_scaling",
+      "operations_overhead": "minimal"
+    },
+    "tags": ["serverless", "lambda", "api"]
+  },
+  {
+    "style_id": "media_streaming_platform",
+    "name": "Media Streaming Platform",
+    "description": "Video/audio ingestion, transcoding, content delivery, and DRM protection",
+    "applicable_intents": ["media_streaming"],
+    "logical_components": [
+      "cdn_layer",
+      "media_ingestion",
+      "media_transcoder",
+      "object_storage",
+      "relational_database",
+      "cache",
+      "dns",
+      "monitoring",
+      "secrets",
+      "identity"
+    ],
+    "characteristics": {
+      "deployment_scope": "global",
+      "scaling_strategy": "distributed_edge",
+      "latency_sensitivity": "high"
+    },
+    "tags": ["media", "streaming", "video", "cdn"]
+  },
+  {
+    "style_id": "ai_ml_pipeline",
+    "name": "AI/ML Pipeline",
+    "description": "Data preparation, model training, model serving, and inference at scale with GPU acceleration",
+    "applicable_intents": ["ai_ml_workload"],
+    "logical_components": [
+      "object_storage",
+      "compute_training",
+      "compute_inference",
+      "relational_database",
+      "monitoring",
+      "secrets",
+      "orchestrator"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "gpu_cluster",
+      "compute_profile": "gpu_accelerated"
+    },
+    "tags": ["ai", "ml", "gpu", "training", "inference"]
+  },
+  {
+    "style_id": "data_lake_analytics",
+    "name": "Data Lake & Analytics Platform",
+    "description": "Large-scale data ingestion, storage, cataloging, querying, and visualization",
+    "applicable_intents": ["data_lake_analytics"],
+    "logical_components": [
+      "data_ingestion",
+      "object_storage",
+      "data_catalog",
+      "query_engine",
+      "visualization",
+      "orchestrator",
+      "monitoring",
+      "secrets"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "separate_compute_storage",
+      "processing_model": "batch_and_interactive"
+    },
+    "tags": ["analytics", "data-lake", "bi", "etl"]
+  },
+  {
+    "style_id": "iot_platform",
+    "name": "IoT Platform",
+    "description": "Device connectivity, telemetry ingestion, stream processing, and device management",
+    "applicable_intents": ["iot_platform"],
+    "logical_components": [
+      "device_gateway",
+      "device_registry",
+      "event_stream",
+      "compute_workers",
+      "time_series_database",
+      "object_storage",
+      "monitoring",
+      "secrets",
+      "identity"
+    ],
+    "characteristics": {
+      "deployment_scope": "regional",
+      "scaling_strategy": "massively_parallel",
+      "processing_model": "streaming"
+    },
+    "tags": ["iot", "telemetry", "devices", "edge"]
+  }
+]

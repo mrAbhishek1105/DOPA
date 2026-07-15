@@ -1,0 +1,52 @@
+[
+  {
+    "rule_id": "db_public",
+    "category": "network_exposure",
+    "target_type": "database",
+    "condition": { "public_access": true },
+    "severity": "critical",
+    "message": "Database is publicly accessible.",
+    "recommendation": "Place the database in private subnets and disable public access.",
+    "evidence_fields": ["public_access", "subnet_type", "security_group_rules"]
+  },
+  {
+    "rule_id": "sg_world_ssh",
+    "category": "network_exposure",
+    "target_type": "security_group",
+    "condition": { "ingress_cidr": "0.0.0.0/0", "port": 22 },
+    "severity": "critical",
+    "message": "SSH is open to the entire internet.",
+    "recommendation": "Restrict SSH to a bastion host, VPN, or zero-trust access path.",
+    "evidence_fields": ["ingress_rules"]
+  },
+  {
+    "rule_id": "s3_public_read",
+    "category": "data_exposure",
+    "target_type": "object_storage",
+    "condition": { "public_read": true },
+    "severity": "critical",
+    "message": "S3 bucket allows public read access.",
+    "recommendation": "Block public access and use signed access or CloudFront when needed.",
+    "evidence_fields": ["public_read", "block_public_acls", "block_public_policy"]
+  },
+  {
+    "rule_id": "iam_wildcard_admin",
+    "category": "privilege",
+    "target_type": "iam",
+    "condition": { "action": "*", "resource": "*" },
+    "severity": "high",
+    "message": "IAM policy grants wildcard administrative access.",
+    "recommendation": "Replace wildcard permissions with least-privilege actions and scoped resources.",
+    "evidence_fields": ["actions", "resources", "effect"]
+  },
+  {
+    "rule_id": "unencrypted_at_rest",
+    "category": "data_protection",
+    "target_type": "storage",
+    "condition": { "storage_encrypted": false },
+    "severity": "high",
+    "message": "Sensitive storage is not encrypted at rest.",
+    "recommendation": "Enable encryption at rest with KMS-managed keys where appropriate.",
+    "evidence_fields": ["storage_encrypted", "kms_key_id"]
+  }
+]

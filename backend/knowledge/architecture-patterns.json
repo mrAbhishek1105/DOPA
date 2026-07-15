@@ -1,0 +1,82 @@
+[
+  {
+    "pattern_id": "global_realtime_platform",
+    "name": "Global Real-Time Platform",
+    "description": "Globally distributed, latency-sensitive workloads such as feeds, chat, and live collaboration.",
+    "workload_type": "social_media",
+    "conditions": {
+      "application_type": ["social_media", "chat", "ecommerce"],
+      "traffic": "very_high",
+      "users": ">1000000",
+      "availability": "multi_region",
+      "latency_sla": "<200ms"
+    },
+    "logical_components": ["cdn", "load_balancer", "compute", "database", "cache", "search", "object_storage"],
+    "default_services": ["cloudfront", "alb", "eks", "aurora", "redis", "opensearch", "s3"],
+    "recommended_characteristics": {
+      "compute": "horizontal_scaling",
+      "data": "multi_az",
+      "network": "global_edge_presence"
+    },
+    "tags": ["global", "realtime", "high-scale", "low-latency"]
+  },
+  {
+    "pattern_id": "standard_web_app",
+    "name": "Standard Web Application",
+    "description": "Typical 3-tier application for ecommerce and SaaS workloads.",
+    "workload_type": "web_app",
+    "conditions": {
+      "application_type": ["ecommerce", "saas", "marketplace", "blog"],
+      "traffic": "medium",
+      "team_size": "small_to_medium",
+      "availability": "high"
+    },
+    "logical_components": ["cdn", "load_balancer", "compute", "database", "object_storage"],
+    "default_services": ["cloudfront", "alb", "ecs", "rds", "s3"],
+    "recommended_characteristics": {
+      "compute": "managed_container_runtime",
+      "data": "single_region_high_availability",
+      "network": "public_front_private_back"
+    },
+    "tags": ["web", "standard", "ecommerce", "starter"]
+  },
+  {
+    "pattern_id": "internal_line_of_business",
+    "name": "Internal Line of Business App",
+    "description": "Internal tools and back-office systems that favor simplicity, access control, and predictable cost.",
+    "workload_type": "internal_app",
+    "conditions": {
+      "application_type": ["internal_tool", "admin_portal", "workflow_app"],
+      "traffic": "low_to_medium",
+      "team_size": "small",
+      "availability": "standard"
+    },
+    "logical_components": ["load_balancer", "compute", "database", "auth"],
+    "default_services": ["alb", "ecs", "rds", "kms"],
+    "recommended_characteristics": {
+      "compute": "low_ops",
+      "data": "single_region",
+      "network": "restricted_access"
+    },
+    "tags": ["internal", "cost-conscious", "access-controlled"]
+  },
+  {
+    "pattern_id": "event_driven_architecture",
+    "name": "Event Driven Architecture",
+    "description": "Asynchronous, decoupled processing for IoT, telemetry, and high-throughput background jobs.",
+    "workload_type": "background_processing",
+    "conditions": {
+      "application_type": ["iot_processing", "telemetry", "batch_jobs"],
+      "traffic": "very_high",
+      "availability": "high"
+    },
+    "logical_components": ["queue", "compute", "database"],
+    "default_services": ["sqs", "lambda", "dynamodb"],
+    "recommended_characteristics": {
+      "compute": "serverless",
+      "data": "nosql",
+      "network": "private"
+    },
+    "tags": ["serverless", "event-driven", "iot"]
+  }
+]

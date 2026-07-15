@@ -1,0 +1,297 @@
+[
+  {
+    "rule_id": "app_type_ecommerce_probe",
+    "goal_id": "understand_application",
+    "trigger": {},
+    "context_keywords": ["shop", "store", "buy", "sell", "product", "order"],
+    "question": "Great. Is this an ecommerce store where users can purchase products, or is it mainly a showcase or business website?",
+    "extracts_field": "application_type",
+    "priority": 1
+  },
+  {
+    "rule_id": "app_type_chat_probe",
+    "goal_id": "understand_application",
+    "trigger": {},
+    "context_keywords": ["chat", "message", "messaging", "whatsapp", "telegram"],
+    "question": "Interesting. Is this a real-time chat platform similar to WhatsApp, or more like a discussion forum?",
+    "extracts_field": "application_type",
+    "priority": 1
+  },
+  {
+    "rule_id": "app_type_social_probe",
+    "goal_id": "understand_application",
+    "trigger": {},
+    "context_keywords": ["social", "feed", "community", "post", "share"],
+    "question": "Got it. Are you building a social network with feeds and user profiles, or more of a community discussion platform?",
+    "extracts_field": "application_type",
+    "priority": 1
+  },
+  {
+    "rule_id": "app_type_video_probe",
+    "goal_id": "understand_application",
+    "trigger": {},
+    "context_keywords": ["video", "stream", "watch", "live", "broadcast"],
+    "question": "Is this a live streaming platform, or a video-on-demand service similar to Netflix?",
+    "extracts_field": "application_type",
+    "priority": 1
+  },
+
+  {
+    "rule_id": "ecommerce_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "ecommerce"},
+    "context_keywords": [],
+    "question": "Roughly how many daily visitors do you expect? And do you anticipate traffic spikes during sales or festival seasons?",
+    "extracts_field": "users",
+    "priority": 2
+  },
+  {
+    "rule_id": "social_media_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "social_media"},
+    "context_keywords": [],
+    "question": "How many active users are you expecting at launch? Are we talking thousands, hundreds of thousands, or millions?",
+    "extracts_field": "users",
+    "priority": 2
+  },
+  {
+    "rule_id": "saas_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "saas"},
+    "context_keywords": [],
+    "question": "How many tenants or organizations will use this platform? And roughly how many users per tenant?",
+    "extracts_field": "users",
+    "priority": 2
+  },
+  {
+    "rule_id": "internal_tool_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "internal_tool"},
+    "context_keywords": [],
+    "question": "How many people in your organization will use this tool daily?",
+    "extracts_field": "team_size",
+    "priority": 2
+  },
+  {
+    "rule_id": "event_driven_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "event_driven"},
+    "context_keywords": [],
+    "question": "What kind of event throughput are we looking at? Hundreds per second, thousands, or more?",
+    "extracts_field": "traffic",
+    "priority": 2
+  },
+  {
+    "rule_id": "ai_workload_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "ai_workload"},
+    "context_keywords": [],
+    "question": "How many inference requests do you expect per day? Is this batch processing or real-time serving?",
+    "extracts_field": "traffic",
+    "priority": 2
+  },
+  {
+    "rule_id": "streaming_scale",
+    "goal_id": "understand_scale",
+    "trigger": {"application_type": "streaming"},
+    "context_keywords": [],
+    "question": "How many concurrent viewers or listeners do you expect at peak?",
+    "extracts_field": "traffic",
+    "priority": 2
+  },
+  {
+    "rule_id": "generic_scale",
+    "goal_id": "understand_scale",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "Roughly how many users or requests do you expect daily?",
+    "extracts_field": "users",
+    "priority": 10
+  },
+
+  {
+    "rule_id": "social_media_realtime",
+    "goal_id": "understand_latency",
+    "trigger": {"application_type": "social_media"},
+    "context_keywords": [],
+    "question": "Will users exchange messages instantly like WhatsApp, or is this more like a forum where posts stay for a while?",
+    "extracts_field": "realtime_latency",
+    "priority": 3
+  },
+  {
+    "rule_id": "streaming_realtime",
+    "goal_id": "understand_latency",
+    "trigger": {"application_type": "streaming"},
+    "context_keywords": [],
+    "question": "Do you need sub-second latency for live content, or is buffered delivery acceptable?",
+    "extracts_field": "realtime_latency",
+    "priority": 3
+  },
+  {
+    "rule_id": "event_driven_realtime",
+    "goal_id": "understand_latency",
+    "trigger": {"application_type": "event_driven"},
+    "context_keywords": [],
+    "question": "Do events need to be processed in real-time, or is near-real-time or batch processing fine?",
+    "extracts_field": "realtime_latency",
+    "priority": 3
+  },
+  {
+    "rule_id": "ai_realtime",
+    "goal_id": "understand_latency",
+    "trigger": {"application_type": "ai_workload"},
+    "context_keywords": [],
+    "question": "Does your model need to respond in real-time (sub-second), or is batch inference acceptable?",
+    "extracts_field": "realtime_latency",
+    "priority": 3
+  },
+
+  {
+    "rule_id": "ecommerce_availability",
+    "goal_id": "understand_availability",
+    "trigger": {"application_type": "ecommerce"},
+    "context_keywords": [],
+    "question": "How critical is uptime for your store? Would a few minutes of downtime during off-hours be acceptable, or does it need to be always-on?",
+    "extracts_field": "availability",
+    "priority": 4
+  },
+  {
+    "rule_id": "saas_availability",
+    "goal_id": "understand_availability",
+    "trigger": {"application_type": "saas"},
+    "context_keywords": [],
+    "question": "What kind of SLA are you promising your customers? 99.9% uptime, or enterprise-grade 99.99%?",
+    "extracts_field": "availability",
+    "priority": 4
+  },
+  {
+    "rule_id": "generic_availability",
+    "goal_id": "understand_availability",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "How critical is uptime? Standard availability, high availability with redundancy, or multi-region disaster recovery?",
+    "extracts_field": "availability",
+    "priority": 10
+  },
+
+  {
+    "rule_id": "india_region",
+    "goal_id": "understand_region",
+    "trigger": {},
+    "context_keywords": ["india", "indian", "mumbai", "delhi", "bangalore"],
+    "question": "Your users are primarily in India. Should we deploy to the Mumbai region (ap-south-1), or do you also need presence elsewhere?",
+    "extracts_field": "region",
+    "priority": 5
+  },
+  {
+    "rule_id": "global_region",
+    "goal_id": "understand_region",
+    "trigger": {},
+    "context_keywords": ["global", "worldwide", "international", "multi-region"],
+    "question": "For a global user base, we'll want multi-region deployment. Which region should be the primary? US East, Europe, or Asia Pacific?",
+    "extracts_field": "region",
+    "priority": 5
+  },
+  {
+    "rule_id": "generic_region",
+    "goal_id": "understand_region",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "Where are your users located? This helps me pick the right AWS region for low latency.",
+    "extracts_field": "region",
+    "priority": 10
+  },
+
+  {
+    "rule_id": "social_media_storage",
+    "goal_id": "understand_storage",
+    "trigger": {"application_type": "social_media"},
+    "context_keywords": [],
+    "question": "Will users upload photos, videos, or other media? How much storage capacity are we looking at?",
+    "extracts_field": "media_storage",
+    "priority": 6
+  },
+  {
+    "rule_id": "streaming_storage",
+    "goal_id": "understand_storage",
+    "trigger": {"application_type": "streaming"},
+    "context_keywords": [],
+    "question": "How much video content will you be hosting? Are we talking gigabytes or terabytes?",
+    "extracts_field": "media_storage",
+    "priority": 6
+  },
+  {
+    "rule_id": "ecommerce_database",
+    "goal_id": "understand_storage",
+    "trigger": {"application_type": "ecommerce"},
+    "context_keywords": [],
+    "question": "Do you have a preference for SQL or NoSQL databases? SQL works well for transactional data like orders and inventory.",
+    "extracts_field": "database",
+    "priority": 6
+  },
+  {
+    "rule_id": "generic_database",
+    "goal_id": "understand_storage",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "Do you have a database preference? SQL for relational data, or NoSQL for more flexibility?",
+    "extracts_field": "database",
+    "priority": 10
+  },
+
+  {
+    "rule_id": "startup_budget",
+    "goal_id": "understand_cost",
+    "trigger": {},
+    "context_keywords": ["startup", "bootstrap", "side project", "hobby", "personal"],
+    "question": "Sounds like you're keeping things lean. Should I optimize for cost efficiency, or do you have room to spend for better performance and reliability?",
+    "extracts_field": "budget",
+    "priority": 7
+  },
+  {
+    "rule_id": "enterprise_budget",
+    "goal_id": "understand_cost",
+    "trigger": {},
+    "context_keywords": ["enterprise", "corporate", "large company", "fortune"],
+    "question": "For an enterprise-grade setup, budget is usually less of a constraint. Should I still keep an eye on costs, or go all-in on reliability and scale?",
+    "extracts_field": "budget",
+    "priority": 7
+  },
+  {
+    "rule_id": "generic_budget",
+    "goal_id": "understand_cost",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "What's your budget range for infrastructure? Low (optimize for cost), medium (balanced), or high (optimize for performance)?",
+    "extracts_field": "budget",
+    "priority": 10
+  },
+
+  {
+    "rule_id": "ecommerce_compliance",
+    "goal_id": "understand_compliance",
+    "trigger": {"application_type": "ecommerce"},
+    "context_keywords": [],
+    "question": "Since you're handling payments, do you need PCI-DSS compliance? Any other regulatory requirements like GDPR?",
+    "extracts_field": "compliance",
+    "priority": 8
+  },
+  {
+    "rule_id": "saas_compliance",
+    "goal_id": "understand_compliance",
+    "trigger": {"application_type": "saas"},
+    "context_keywords": [],
+    "question": "Does your SaaS need to meet any compliance standards? SOC 2 and HIPAA are common for B2B platforms.",
+    "extracts_field": "compliance",
+    "priority": 8
+  },
+  {
+    "rule_id": "generic_compliance",
+    "goal_id": "understand_compliance",
+    "trigger": {},
+    "context_keywords": [],
+    "question": "Any compliance or regulatory requirements I should know about? SOC 2, HIPAA, PCI-DSS, GDPR, or none?",
+    "extracts_field": "compliance",
+    "priority": 10
+  }
+]

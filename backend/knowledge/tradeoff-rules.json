@@ -1,0 +1,42 @@
+[
+  {
+    "decision": "ecs_vs_eks",
+    "category": "compute",
+    "recommended_when": ["small_team", "simple_operations", "fast_delivery"],
+    "avoid_when": ["need_full_kubernetes_control", "platform_standard_is_kubernetes"],
+    "advantages": ["less_operational_overhead", "native_aws_integration", "faster_time_to_value"],
+    "disadvantages": ["less_portability", "fewer_control_knobs"],
+    "default_choice": "ecs",
+    "rationale": "Choose ECS when DOPA should hide orchestration complexity and keep the user focused on architecture."
+  },
+  {
+    "decision": "rds_vs_aurora",
+    "category": "database",
+    "recommended_when": ["cost_sensitivity", "moderate_scale", "simple_relational_needs"],
+    "avoid_when": ["global_scale", "read_heavy_at_large_scale", "need_advanced_failover"],
+    "advantages": ["predictable_costs", "simple_operations"],
+    "disadvantages": ["less_scalability", "less_advanced_replication"],
+    "default_choice": "rds",
+    "rationale": "Choose RDS for the first viable production path unless the workload clearly needs Aurora characteristics."
+  },
+  {
+    "decision": "alb_vs_nlb",
+    "category": "load_balancing",
+    "recommended_when": ["http_https_routing", "path_based_routing", "container_apps"],
+    "avoid_when": ["tcp_udp_passthrough"],
+    "advantages": ["layer7_features", "health_checks", "simple_app_routing"],
+    "disadvantages": ["not_for_raw_tcp_passthrough"],
+    "default_choice": "alb",
+    "rationale": "Choose ALB for application workloads because DOPA mostly designs web and API systems in Sprint 1."
+  },
+  {
+    "decision": "redis_vs_dynamodb",
+    "category": "data_access",
+    "recommended_when": ["in_memory_cache", "session_store", "low_latency_reads"],
+    "avoid_when": ["primary_system_of_record"],
+    "advantages": ["extremely_fast_reads", "simple_cache_patterns"],
+    "disadvantages": ["not_a_primary_database", "memory_cost"],
+    "default_choice": "redis",
+    "rationale": "Choose Redis when the purpose is caching or transient state, not durable storage."
+  }
+]

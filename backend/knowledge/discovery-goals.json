@@ -1,0 +1,72 @@
+[
+  {
+    "goal_id": "understand_application",
+    "priority": 1,
+    "description": "Determine the type of application being built",
+    "satisfied_by": ["application_type"],
+    "satisfied_by_any": false,
+    "triggers": null
+  },
+  {
+    "goal_id": "understand_scale",
+    "priority": 2,
+    "description": "Understand expected user load and traffic patterns",
+    "satisfied_by": ["users", "traffic"],
+    "satisfied_by_any": true,
+    "triggers": null
+  },
+  {
+    "goal_id": "understand_latency",
+    "priority": 3,
+    "description": "Determine if the application requires real-time or low-latency communication",
+    "satisfied_by": ["realtime_latency"],
+    "satisfied_by_any": false,
+    "triggers": {
+      "application_type": ["social_media", "streaming", "event_driven", "ai_workload"]
+    }
+  },
+  {
+    "goal_id": "understand_availability",
+    "priority": 4,
+    "description": "Determine the required uptime and redundancy level",
+    "satisfied_by": ["availability"],
+    "satisfied_by_any": false,
+    "triggers": null
+  },
+  {
+    "goal_id": "understand_region",
+    "priority": 5,
+    "description": "Determine the primary deployment region based on user geography",
+    "satisfied_by": ["region"],
+    "satisfied_by_any": false,
+    "triggers": null
+  },
+  {
+    "goal_id": "understand_storage",
+    "priority": 6,
+    "description": "Determine database and media storage needs",
+    "satisfied_by": ["database", "media_storage"],
+    "satisfied_by_any": true,
+    "triggers": {
+      "application_type": ["social_media", "streaming", "ecommerce", "saas"]
+    }
+  },
+  {
+    "goal_id": "understand_cost",
+    "priority": 7,
+    "description": "Understand the budget constraints for the architecture",
+    "satisfied_by": ["budget"],
+    "satisfied_by_any": false,
+    "triggers": null
+  },
+  {
+    "goal_id": "understand_compliance",
+    "priority": 8,
+    "description": "Determine regulatory and compliance requirements",
+    "satisfied_by": ["compliance"],
+    "satisfied_by_any": false,
+    "triggers": {
+      "application_type": ["saas", "ecommerce", "ai_workload"]
+    }
+  }
+]

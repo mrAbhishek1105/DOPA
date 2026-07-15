@@ -1,0 +1,86 @@
+[
+  {
+    "pattern": "standard_web_app",
+    "scoring_weights": {
+      "cost": 0.4,
+      "reliability": 0.3,
+      "simplicity": 0.2,
+      "scalability": 0.1
+    },
+    "option_a": {
+      "name": "Cost-Optimized",
+      "goals": ["lowest_monthly_cost", "minimal_operations"],
+      "service_choices": {
+        "compute": "ecs_fargate_spot",
+        "database": "rds_single_az",
+        "cache": "none",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["lower_resilience", "more_manual_tuning"]
+    },
+    "option_b": {
+      "name": "Balanced",
+      "goals": ["good_reliability", "predictable_ops", "moderate_cost"],
+      "service_choices": {
+        "compute": "ecs_fargate",
+        "database": "rds_multi_az",
+        "cache": "redis",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["moderate_cost", "good_default_choice"]
+    },
+    "option_c": {
+      "name": "Enterprise",
+      "goals": ["higher_resilience", "scale_headroom", "complex_workloads"],
+      "service_choices": {
+        "compute": "eks",
+        "database": "aurora_global",
+        "cache": "redis_cluster",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["higher_cost", "higher_operational_complexity"]
+    }
+  },
+  {
+    "pattern": "global_realtime_platform",
+    "scoring_weights": {
+      "latency": 0.35,
+      "reliability": 0.3,
+      "scale": 0.25,
+      "cost": 0.1
+    },
+    "option_a": {
+      "name": "Global Lean",
+      "goals": ["global_entry_with_controlled_cost"],
+      "service_choices": {
+        "compute": "ecs",
+        "database": "aurora_single_region",
+        "cache": "redis",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["less_global_resilience_than_enterprise"]
+    },
+    "option_b": {
+      "name": "Balanced Global",
+      "goals": ["good_global_availability", "practical_operations"],
+      "service_choices": {
+        "compute": "ecs",
+        "database": "aurora_multi_az",
+        "cache": "redis",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["higher_than_basic_cost"]
+    },
+    "option_c": {
+      "name": "Enterprise Global",
+      "goals": ["maximum_scale", "multi_region_strategy"],
+      "service_choices": {
+        "compute": "eks",
+        "database": "aurora_global",
+        "cache": "redis_cluster",
+        "cdn": "cloudfront"
+      },
+      "tradeoffs": ["highest_cost", "highest_complexity"]
+    }
+  }
+]

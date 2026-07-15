@@ -1,0 +1,120 @@
+[
+  {
+    "application_type": "ecommerce",
+    "keywords": ["ecommerce", "store", "shopping", "retail", "marketplace", "shop"],
+    "required_questions": [
+      {"field": "traffic", "question": "What is your expected daily traffic? (low/medium/very_high)"},
+      {"field": "availability", "question": "What availability level do you need? (standard/high/multi_region)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"},
+      {"field": "database", "question": "Do you have a database preference? (SQL/NoSQL)"},
+      {"field": "compliance", "question": "Any compliance requirements? (soc2/hipaa/pci/none)"}
+    ],
+    "optional_questions": ["search", "cdn", "cache", "multi_region"],
+    "stopping_condition": ["traffic_known", "availability_known", "region_known", "budget_known", "database_known"],
+    "fallback_questions": [
+      {"field": "team_size", "question": "How large is your team? (small/medium/large)"},
+      {"field": "latency_sla", "question": "What is your latency SLA? (<200ms/<500ms/none)"}
+    ]
+  },
+  {
+    "application_type": "social_media",
+    "keywords": ["social media", "social network", "feed", "chat", "messaging", "community", "forum"],
+    "required_questions": [
+      {"field": "users", "question": "How many users do you expect?"},
+      {"field": "realtime_latency", "question": "Do you need real-time updates? (yes/no)"},
+      {"field": "media_storage", "question": "How much media storage do you need? (low/medium/high)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"}
+    ],
+    "optional_questions": ["feed_freshness", "recommendation_engine", "analytics"],
+    "stopping_condition": ["users_known", "realtime_latency_known", "media_storage_known", "region_known", "budget_known"],
+    "fallback_questions": [
+      {"field": "team_size", "question": "How large is your team? (small/medium/large)"},
+      {"field": "latency_sla", "question": "What is your latency SLA? (<200ms/<500ms/none)"}
+    ]
+  },
+  {
+    "application_type": "saas",
+    "keywords": ["saas", "subscription", "b2b", "software as a service", "multi-tenant", "tenant"],
+    "required_questions": [
+      {"field": "traffic", "question": "What is your expected daily traffic? (low/medium/very_high)"},
+      {"field": "availability", "question": "What availability level do you need? (standard/high/multi_region)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"},
+      {"field": "users", "question": "How many users do you expect?"},
+      {"field": "compliance", "question": "Any compliance requirements? (soc2/hipaa/pci/none)"}
+    ],
+    "optional_questions": ["sso", "audit_logging", "analytics"],
+    "stopping_condition": ["traffic_known", "availability_known", "region_known", "budget_known", "users_known"],
+    "fallback_questions": [
+      {"field": "team_size", "question": "How large is your team? (small/medium/large)"},
+      {"field": "database", "question": "Do you have a database preference? (SQL/NoSQL)"}
+    ]
+  },
+  {
+    "application_type": "internal_tool",
+    "keywords": ["internal tool", "admin", "dashboard", "back office", "workflow", "enterprise app"],
+    "required_questions": [
+      {"field": "team_size", "question": "How many users will access this tool? (small/medium/large)"},
+      {"field": "availability", "question": "What availability level do you need? (standard/high)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"}
+    ],
+    "optional_questions": ["sso", "compliance", "audit_logging"],
+    "stopping_condition": ["team_size_known", "availability_known", "region_known", "budget_known"],
+    "fallback_questions": [
+      {"field": "users", "question": "How many external users?"},
+      {"field": "compliance", "question": "Any compliance requirements? (soc2/hipaa/none)"}
+    ]
+  },
+  {
+    "application_type": "event_driven",
+    "keywords": ["event", "stream processing", "iot", "telemetry", "batch", "async", "queue", "kafka", "event driven"],
+    "required_questions": [
+      {"field": "traffic", "question": "What is your expected event throughput? (low/medium/very_high)"},
+      {"field": "availability", "question": "What availability level do you need? (standard/high)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"},
+      {"field": "realtime_latency", "question": "Do you need real-time processing? (yes/no)"}
+    ],
+    "optional_questions": ["data_retention", "schema_registry"],
+    "stopping_condition": ["traffic_known", "availability_known", "region_known", "budget_known"],
+    "fallback_questions": [
+      {"field": "database", "question": "Do you need a database for processed results? (SQL/NoSQL/none)"},
+      {"field": "team_size", "question": "How large is your team? (small/medium/large)"}
+    ]
+  },
+  {
+    "application_type": "ai_workload",
+    "keywords": ["ai", "ml", "machine learning", "inference", "training", "llm", "gen ai", "generative", "model"],
+    "required_questions": [
+      {"field": "traffic", "question": "What is your expected inference requests per day? (low/medium/very_high)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"},
+      {"field": "realtime_latency", "question": "Do you need real-time inference? (yes/no)"}
+    ],
+    "optional_questions": ["gpu_type", "model_size", "training_frequency"],
+    "stopping_condition": ["traffic_known", "region_known", "budget_known", "realtime_latency_known"],
+    "fallback_questions": [
+      {"field": "availability", "question": "What availability level do you need? (standard/high)"},
+      {"field": "database", "question": "Do you need a vector database? (yes/no)"}
+    ]
+  },
+  {
+    "application_type": "streaming",
+    "keywords": ["streaming", "video", "live", "broadcast", "real-time media", "vod", "video on demand"],
+    "required_questions": [
+      {"field": "traffic", "question": "How many concurrent viewers do you expect? (low/medium/very_high)"},
+      {"field": "region", "question": "Which AWS region do you prefer? (us-east-1, eu-west-1, etc.)"},
+      {"field": "budget", "question": "What is your budget range? (low/medium/high)"},
+      {"field": "media_storage", "question": "How much media storage do you need? (low/medium/high)"}
+    ],
+    "optional_questions": ["transcoding", "drm", "cdn_preference"],
+    "stopping_condition": ["traffic_known", "region_known", "budget_known", "media_storage_known"],
+    "fallback_questions": [
+      {"field": "availability", "question": "What availability level do you need? (standard/high/multi_region)"},
+      {"field": "realtime_latency", "question": "Do you need sub-second latency? (yes/no)"}
+    ]
+  }
+]

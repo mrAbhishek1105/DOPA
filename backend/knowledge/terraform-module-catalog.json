@@ -1,0 +1,86 @@
+[
+  {
+    "service": "vpc",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/vpc/aws",
+    "module_version": "5.x",
+    "resource_type": "aws_vpc",
+    "required_inputs": ["cidr", "azs", "private_subnets", "public_subnets"],
+    "optional_inputs": ["enable_nat_gateway", "single_nat_gateway"],
+    "default_inputs": { "enable_nat_gateway": true, "single_nat_gateway": true },
+    "output_paths": ["vpc_id", "private_subnet_ids", "public_subnet_ids"],
+    "curation_profile": "network_core"
+  },
+  {
+    "service": "alb",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/alb/aws",
+    "module_version": "9.x",
+    "resource_type": "aws_lb",
+    "required_inputs": ["vpc_id", "subnets", "security_groups"],
+    "optional_inputs": ["internal", "enable_deletion_protection"],
+    "default_inputs": { "internal": false, "enable_deletion_protection": false },
+    "output_paths": ["lb_dns_name", "lb_arn"],
+    "curation_profile": "app_front_door"
+  },
+  {
+    "service": "ecs",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/ecs/aws",
+    "module_version": "5.x",
+    "resource_type": "aws_ecs_service",
+    "required_inputs": ["cluster_name", "subnet_ids", "task_definition"],
+    "optional_inputs": ["desired_count", "launch_type"],
+    "default_inputs": { "launch_type": "FARGATE", "desired_count": 2 },
+    "output_paths": ["service_name", "task_definition_arn"],
+    "curation_profile": "application_compute"
+  },
+  {
+    "service": "rds",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/rds/aws",
+    "module_version": "6.x",
+    "resource_type": "aws_db_instance",
+    "required_inputs": ["engine", "instance_class", "subnet_ids", "security_group_ids"],
+    "optional_inputs": ["multi_az", "storage_encrypted"],
+    "default_inputs": { "multi_az": true, "storage_encrypted": true },
+    "output_paths": ["db_instance_endpoint", "db_instance_arn"],
+    "curation_profile": "relational_database"
+  },
+  {
+    "service": "s3",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/s3-bucket/aws",
+    "module_version": "4.x",
+    "resource_type": "aws_s3_bucket",
+    "required_inputs": ["bucket_name"],
+    "optional_inputs": ["versioning", "block_public_acls"],
+    "default_inputs": { "versioning": true, "block_public_acls": true },
+    "output_paths": ["bucket_id", "bucket_arn"],
+    "curation_profile": "artifact_storage"
+  },
+  {
+    "service": "redis",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/elasticache/aws",
+    "module_version": "4.x",
+    "resource_type": "aws_elasticache_replication_group",
+    "required_inputs": ["subnet_ids", "security_group_ids"],
+    "optional_inputs": ["node_type", "multi_az_enabled"],
+    "default_inputs": { "multi_az_enabled": true },
+    "output_paths": ["primary_endpoint_address"],
+    "curation_profile": "cache_layer"
+  },
+  {
+    "service": "kms",
+    "provider": "aws",
+    "module_path": "terraform-aws-modules/kms/aws",
+    "module_version": "2.x",
+    "resource_type": "aws_kms_key",
+    "required_inputs": ["description"],
+    "optional_inputs": ["enable_key_rotation"],
+    "default_inputs": { "enable_key_rotation": true },
+    "output_paths": ["key_arn"],
+    "curation_profile": "encryption_core"
+  }
+]

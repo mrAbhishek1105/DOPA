@@ -1,0 +1,42 @@
+[
+  {
+    "pattern_id": "standard_web_app",
+    "name": "Standard Web Application",
+    "description": "Deterministic template for ecommerce and SaaS-style 3-tier systems.",
+    "services": ["cloudfront", "alb", "ecs", "rds"],
+    "nodes": [
+      { "id": "cloudfront", "type": "cdn", "service": "cloudfront" },
+      { "id": "alb", "type": "load_balancer", "service": "alb" },
+      { "id": "ecs", "type": "compute", "service": "ecs" },
+      { "id": "rds", "type": "database", "service": "rds" }
+    ],
+    "edges": [
+      { "source": "cloudfront", "target": "alb", "relationship": "routes_to" },
+      { "source": "alb", "target": "ecs", "relationship": "routes_to" },
+      { "source": "ecs", "target": "rds", "relationship": "uses" }
+    ],
+    "allowed_modes": ["basic", "advanced", "expert"]
+  },
+  {
+    "pattern_id": "global_realtime_platform",
+    "name": "Global Real-Time Platform",
+    "description": "Template for high-scale globally distributed real-time workloads.",
+    "services": ["cloudfront", "alb", "eks", "aurora", "redis", "opensearch"],
+    "nodes": [
+      { "id": "cloudfront", "type": "cdn", "service": "cloudfront" },
+      { "id": "alb", "type": "load_balancer", "service": "alb" },
+      { "id": "eks", "type": "compute", "service": "eks" },
+      { "id": "aurora", "type": "database", "service": "aurora" },
+      { "id": "redis", "type": "cache", "service": "redis" },
+      { "id": "opensearch", "type": "search", "service": "opensearch" }
+    ],
+    "edges": [
+      { "source": "cloudfront", "target": "alb", "relationship": "routes_to" },
+      { "source": "alb", "target": "eks", "relationship": "routes_to" },
+      { "source": "eks", "target": "aurora", "relationship": "uses" },
+      { "source": "eks", "target": "redis", "relationship": "uses" },
+      { "source": "eks", "target": "opensearch", "relationship": "uses" }
+    ],
+    "allowed_modes": ["advanced", "expert"]
+  }
+]

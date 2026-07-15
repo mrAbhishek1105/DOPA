@@ -1,0 +1,98 @@
+[
+  {
+    "intent_id": "realtime_messaging",
+    "name": "Real-time Messaging",
+    "description": "Applications requiring persistent connections, instant message delivery, and presence awareness",
+    "trigger_conditions": {
+      "application_type": ["social_media", "chat"],
+      "realtime_latency": "yes"
+    },
+    "priority": 1
+  },
+  {
+    "intent_id": "web_application",
+    "name": "Web Application",
+    "description": "Standard request-response web applications with server-side rendering or SPA frontends",
+    "trigger_conditions": {
+      "application_type": ["ecommerce", "saas", "web_app", "marketplace", "blog"]
+    },
+    "priority": 2
+  },
+  {
+    "intent_id": "event_driven_processing",
+    "name": "Event-Driven Processing",
+    "description": "Asynchronous processing pipelines, event streaming, IoT telemetry ingestion, and background job processing",
+    "trigger_conditions": {
+      "application_type": ["event_driven", "iot_processing", "telemetry"],
+      "realtime_latency": "yes"
+    },
+    "priority": 3
+  },
+  {
+    "intent_id": "batch_processing",
+    "name": "Batch Processing",
+    "description": "Scheduled or on-demand batch jobs, ETL pipelines, data transformation, and report generation",
+    "trigger_conditions": {
+      "application_type": ["batch"],
+      "realtime_latency": "no"
+    },
+    "priority": 4
+  },
+  {
+    "intent_id": "serverless_api",
+    "name": "Serverless API",
+    "description": "Event-driven APIs with variable or unpredictable traffic patterns, minimal operations overhead",
+    "trigger_conditions": {
+      "budget": "low",
+      "traffic": "low",
+      "team_size": "small"
+    },
+    "priority": 5
+  },
+  {
+    "intent_id": "media_streaming",
+    "name": "Media Streaming",
+    "description": "Live and on-demand video/audio streaming with transcoding, DRM, and global distribution",
+    "trigger_conditions": {
+      "application_type": ["streaming", "video"]
+    },
+    "priority": 6
+  },
+  {
+    "intent_id": "ai_ml_workload",
+    "name": "AI/ML Workload",
+    "description": "Machine learning training and inference pipelines, model serving, and GPU-accelerated computation",
+    "trigger_conditions": {
+      "application_type": ["ai_workload", "ml"]
+    },
+    "priority": 7
+  },
+  {
+    "intent_id": "internal_tool",
+    "name": "Internal Business Tool",
+    "description": "Low-ops internal applications for back-office, admin dashboards, and workflow management",
+    "trigger_conditions": {
+      "application_type": ["internal_tool", "admin_portal", "workflow_app"]
+    },
+    "priority": 8
+  },
+  {
+    "intent_id": "data_lake_analytics",
+    "name": "Data Lake & Analytics",
+    "description": "Large-scale data storage, querying, and business intelligence workloads",
+    "trigger_conditions": {
+      "application_type": ["analytics", "data_lake"]
+    },
+    "priority": 9
+  },
+  {
+    "intent_id": "iot_platform",
+    "name": "IoT Platform",
+    "description": "Device ingestion, telemetry processing, and device management at scale",
+    "trigger_conditions": {
+      "application_type": ["iot"],
+      "traffic": "high"
+    },
+    "priority": 10
+  }
+]

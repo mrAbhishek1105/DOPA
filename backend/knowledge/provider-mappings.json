@@ -1,0 +1,14 @@
+[
+  {
+    "logical_component": "object_storage",
+    "aws": "s3",
+    "azure": "blob_storage",
+    "gcp": "cloud_storage"
+  },
+  {
+    "logical_component": "relational_database",
+    "aws": "rds",
+    "azure": "sql_database",
+    "gcp": "cloud_sql"
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "rule_id": "single_point_of_failure",
+    "category": "resilience",
+    "severity": "high",
+    "condition": { "multi_az": false },
+    "message": "A critical component is deployed without multi-AZ resilience.",
+    "recommendation": "Enable multi-AZ or add failover-capable redundancy for production workloads."
+  },
+  {
+    "rule_id": "missing_required_tags",
+    "category": "governance",
+    "severity": "medium",
+    "condition": { "required_tags_missing": true },
+    "message": "Required governance tags are missing.",
+    "recommendation": "Apply project, environment, owner, and cost-center tags."
+  },
+  {
+    "rule_id": "cyclic_dependency",
+    "category": "graph_integrity",
+    "severity": "critical",
+    "condition": { "cycle_detected": true },
+    "message": "A cyclic dependency exists in the graph.",
+    "recommendation": "Break the dependency cycle before generating Terraform."
+  },
+  {
+    "rule_id": "unsupported_service_combo",
+    "category": "compatibility",
+    "severity": "high",
+    "condition": { "unsupported_combo": true },
+    "message": "The selected AWS services are not compatible together.",
+    "recommendation": "Revisit the pattern selection or module mapping."
+  },
+  {
+    "rule_id": "missing_private_network",
+    "category": "network_design",
+    "severity": "high",
+    "condition": { "private_subnets_present": false },
+    "message": "No private subnet layer is present for backend components.",
+    "recommendation": "Introduce private subnets for application and data tiers."
+  }
+]
