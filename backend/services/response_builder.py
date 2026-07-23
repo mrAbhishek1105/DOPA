@@ -224,19 +224,24 @@ class ResponseBuilder:
         """Build a bullet-point observation section."""
         lines: list[str] = []
         extracted = discovery.extracted
-        completed = discovery.completed_fields
 
-        for field in completed:
-            value = extracted.get(field)
-            if value is None or value == "":
+        for field, value in extracted.items():
+            if value is None or value == "" or field.startswith("__") or field == "capabilities":
                 continue
             label = FIELD_LABELS.get(field, field.replace("_", " ").title())
             formatted = self._format_value(field, value)
             lines.append(f"  ✓ **{label}**: {formatted}")
 
+        # Add detected workloads/capabilities if present
+        capabilities = extracted.get("capabilities", [])
+        if capabilities and isinstance(capabilities, list):
+            for cap in capabilities:
+                lines.append(f"  ✓ **Capability**: {cap}")
+
         for field in discovery.missing_fields:
-            label = FIELD_LABELS.get(field, field.replace("_", " ").title())
-            lines.append(f"  ? **{label}**: Not yet specified")
+            if field not in extracted or extracted[field] is None:
+                label = FIELD_LABELS.get(field, field.replace("_", " ").title())
+                lines.append(f"  ? **{label}**: Not yet specified")
 
         return "\n".join(lines) if lines else ""
 
@@ -356,6 +361,9 @@ class ResponseBuilder:
             return self._format_user_count(value)
         if field == "cloud" and isinstance(value, str):
             return value.upper()
+        if field == "database" and isinstance(value, str):
+            db_map = {"postgresql": "PostgreSQL", "mysql": "MySQL", "dynamodb": "DynamoDB", "mongodb": "MongoDB", "sql": "SQL"}
+            return db_map.get(value.lower(), value.title())
         if field == "application_type":
             return APP_TYPE_LABELS.get(value, str(value).replace("_", " ").title())
         if field == "budget":

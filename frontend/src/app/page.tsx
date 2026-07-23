@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 import { projectsApi } from "@/lib/api/projects";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -123,12 +124,14 @@ export default function LandingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleCreateProject = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const project = await projectsApi.createProject("New Architecture");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       router.push(`/projects/${project.id}`);
     } catch (err: any) {
       if (err?.code === "ERR_NETWORK" || err?.message?.includes("Network")) {

@@ -56,15 +56,7 @@ class ConversationPlanner:
         discovery_response: DiscoveryResponse,
         planner_state: PlannerState | None = None,
     ) -> tuple[PlannerResult, PlannerState]:
-        """Main entry point. Evaluate goals and pick the best next question.
-
-        Args:
-            discovery_response: Output from DiscoveryEngine.process_message()
-            planner_state: Previous planner state (None on first turn)
-
-        Returns:
-            Tuple of (PlannerResult, updated PlannerState)
-        """
+        """Main entry point. Evaluate goals and pick the best next question."""
         state = planner_state or PlannerState()
         state.turn_count += 1
         state.discovered_fields = dict(discovery_response.extracted)
@@ -112,7 +104,7 @@ class ConversationPlanner:
             )
 
         # Select the highest-priority unsatisfied goal
-        selected_goal = self._select_next_goal(goal_statuses, state.clarification_history)
+        selected_goal = self._select_next_goal(goal_statuses, state.clarification_history, state.discovered_fields)
         if not selected_goal:
             # All applicable goals are satisfied — mark complete
             state.conversation_stage = "complete"
@@ -168,13 +160,14 @@ class ConversationPlanner:
 
             # Check if this goal is applicable (trigger conditions)
             is_applicable = True
-            if triggers and app_type:
-                trigger_app_types = triggers.get("application_type", [])
-                if trigger_app_types and app_type not in trigger_app_types:
+            if triggers:
+                if app_type:
+                    trigger_app_types = triggers.get("application_type", [])
+                    if trigger_app_types and app_type not in trigger_app_types:
+                        is_applicable = False
+                else:
+                    # Without knowing application type, triggered goals are not applicable yet
                     is_applicable = False
-            elif triggers and not app_type:
-                # Can't evaluate triggers without knowing the app type yet
-                is_applicable = False
 
             # Check satisfaction
             satisfied_fields = [f for f in satisfied_by if f in known_fields and known_fields[f]]
@@ -199,23 +192,19 @@ class ConversationPlanner:
         return statuses
 
     def _select_next_goal(
-        self, goal_statuses: list[GoalStatus], history: list[str]
+        self, goal_statuses: list[GoalStatus], history: list[str], known_fields: dict[str, Any]
     ) -> GoalStatus | None:
-        """Pick the highest-priority unsatisfied, applicable goal.
+        """Pick the highest-priority unsatisfied, applicable goal."""
+        app_type = known_fields.get("application_type")
 
-        If a goal's rules have all been exhausted in history, skip it to avoid
-        getting stuck in a loop.
-        """
+        # Prioritize understand_application if app_type is missing
+        if not app_type:
+            for status in goal_statuses:
+                if status.goal_id == "understand_application" and not status.is_satisfied:
+                    return status
+
         for status in sorted(goal_statuses, key=lambda g: g.priority):
             if status.is_applicable and not status.is_satisfied:
-                # Check if we have at least one unused rule for this goal
-                available_rules = [
-                    r for r in self._rules
-                    if r.get("goal_id") == status.goal_id and r.get("rule_id") not in history
-                ]
-                if available_rules:
-                    return status
-                # No unused rules, but still unsatisfied — we can use a fallback
                 return status
         return None
 
@@ -227,68 +216,47 @@ class ConversationPlanner:
         known_fields: dict[str, Any],
         history: list[str],
     ) -> tuple[str, str | None]:
-        """Find the best clarification rule for the given goal and context.
+        """Find the best clarification rule for the given goal and context."""
+        candidate_rules = []
+        for r in self._rules:
+            if r.get("goal_id") != goal.goal_id or r.get("rule_id") in history:
+                continue
 
-        Selection strategy:
-        1. Find rules matching the goal_id
-        2. Filter out already-used rules (from history)
-        3. Prefer rules whose trigger matches known fields
-        4. Prefer rules with context_keywords matching the conversation context
-        5. Fall back to generic (empty trigger) rules
-        6. If no rules at all, generate a plain fallback question
+            # Strict trigger matching: if rule defines a trigger, it MUST match known_fields
+            trigger = r.get("trigger", {})
+            if trigger:
+                matches = all(known_fields.get(k) == v for k, v in trigger.items())
+                if not matches:
+                    continue
 
-        Returns:
-            Tuple of (question_text, rule_id or None)
-        """
-        app_type = known_fields.get("application_type")
-        candidate_rules = [
-            r for r in self._rules
-            if r.get("goal_id") == goal.goal_id and r.get("rule_id") not in history
-        ]
+            candidate_rules.append(r)
 
         if not candidate_rules:
-            # Absolute fallback — generate a basic question from the missing field
             if goal.missing_fields:
                 field = goal.missing_fields[0]
                 return (f"Could you tell me about your {field.replace('_', ' ')} requirements?", None)
             return ("Could you tell me more about your requirements?", None)
 
-        # Score each candidate
+        # Score candidate rules
         scored: list[tuple[float, dict[str, Any]]] = []
         for rule in candidate_rules:
             score = 0.0
             trigger = rule.get("trigger", {})
-
-            # Trigger match: does the rule's trigger match known fields?
             if trigger:
-                trigger_matches = all(
-                    known_fields.get(k) == v for k, v in trigger.items()
-                )
-                if trigger_matches:
-                    score += 100  # Strong match
-                else:
-                    score -= 200  # Trigger exists but doesn't match — deprioritize
-            else:
-                score += 10  # Generic rule (no trigger) — mild preference
+                score += 100
 
-            # Context keyword match: bonus for keyword overlap with known context
             context_kw = rule.get("context_keywords", [])
             if context_kw:
-                # Check if any context keywords appear in previously extracted info
-                all_known_values = " ".join(
-                    str(v).lower() for v in known_fields.values() if v
-                )
+                all_known_values = " ".join(str(v).lower() for v in known_fields.values() if v)
                 for kw in context_kw:
                     if kw.lower() in all_known_values:
                         score += 20
 
-            # Lower rule priority number = more specific = better
             rule_priority = rule.get("priority", 10)
-            score -= rule_priority  # Lower priority number → higher score
+            score -= rule_priority
 
             scored.append((score, rule))
 
-        # Pick the best
         scored.sort(key=lambda x: x[0], reverse=True)
         best_rule = scored[0][1]
 
@@ -304,7 +272,7 @@ class ConversationPlanner:
             if assumption.confidence < CONFIDENCE_VERIFICATION_THRESHOLD:
                 rule_id = f"verify_{assumption.field}"
                 if rule_id in state.clarification_history:
-                    continue  # Already asked
+                    continue
                 question = (
                     f"I think your {assumption.field.replace('_', ' ')} is "
                     f"\"{assumption.value}\". Is that correct, or would you "
@@ -314,12 +282,7 @@ class ConversationPlanner:
         return None
 
     def _compute_overall_confidence(self, state: PlannerState) -> float:
-        """Compute an overall confidence score for the current requirements.
-
-        Based on:
-        - Number of goals satisfied vs total applicable goals
-        - Individual field confidence scores
-        """
+        """Compute overall confidence score."""
         goal_statuses = self._evaluate_all_goals(state.discovered_fields)
         applicable = [g for g in goal_statuses if g.is_applicable]
         if not applicable:
@@ -328,21 +291,15 @@ class ConversationPlanner:
         satisfied = [g for g in applicable if g.is_satisfied]
         goal_ratio = len(satisfied) / len(applicable)
 
-        # Factor in individual confidence scores
         if state.confidence_scores:
-            avg_field_confidence = sum(state.confidence_scores.values()) / len(
-                state.confidence_scores
-            )
+            avg_field_confidence = sum(state.confidence_scores.values()) / len(state.confidence_scores)
         else:
             avg_field_confidence = 1.0 if satisfied else 0.5
 
-        # Weighted combination
         return round(goal_ratio * 0.7 + avg_field_confidence * 0.3, 3)
 
 
 class _VerificationQuestion:
-    """Internal helper for confidence verification questions."""
-
     __slots__ = ("question", "rule_id")
 
     def __init__(self, question: str, rule_id: str) -> None:

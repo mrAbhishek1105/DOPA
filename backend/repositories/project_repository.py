@@ -101,3 +101,36 @@ class ProjectRepository:
         await self.session.commit()
         await self.session.refresh(report)
         return report
+
+    async def get_latest_report(self, project_id: uuid.UUID | str, report_type: str) -> Report | None:
+        if isinstance(project_id, str):
+            project_id = uuid.UUID(project_id)
+
+        stmt = (
+            select(Report)
+            .where(Report.project_id == project_id, Report.report_type == report_type)
+            .order_by(Report.created_at.desc())
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
+    async def get_latest_architecture(self, project_id: uuid.UUID | str) -> Architecture | None:
+        if isinstance(project_id, str):
+            project_id = uuid.UUID(project_id)
+            
+        stmt = (
+            select(Architecture)
+            .where(Architecture.project_id == project_id)
+            .order_by(Architecture.created_at.desc())
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
+    async def delete_project(self, project_id: uuid.UUID | str) -> bool:
+        project = await self.get_project(project_id)
+        if project:
+            await self.session.delete(project)
+            await self.session.commit()
+            return True
+        return False

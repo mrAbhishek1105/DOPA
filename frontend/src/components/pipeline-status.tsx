@@ -6,17 +6,20 @@ import { projectsApi } from "@/lib/api/projects";
 import { Check, Loader2 } from "lucide-react";
 
 const PIPELINE_STEPS = [
-  { key: "discovery", label: "Discovery" },
-  { key: "requirements_gathered", label: "Requirements" },
-  { key: "options_generated", label: "Options" },
-  { key: "graph_generated", label: "Graph" },
-  { key: "analyzing", label: "Analyzing" },
-  { key: "completed", label: "Complete" },
+  { key: "discover", label: "Discover" },
+  { key: "design", label: "Design" },
+  { key: "analyze", label: "Analyze" },
+  { key: "generate", label: "Generate" },
+  { key: "complete", label: "Complete" },
 ] as const;
 
 function getStepIndex(status: string): number {
-  const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
-  return idx === -1 ? 0 : idx;
+  if (["discovery", "requirements_gathered"].includes(status)) return 0;
+  if (["options_generated", "graph_generated"].includes(status)) return 1;
+  if (["analyzing"].includes(status)) return 2;
+  if (["terraform_generating"].includes(status)) return 3;
+  if (["completed"].includes(status)) return 4;
+  return 0;
 }
 
 export function PipelineStatus({ projectId }: { projectId: string }) {

@@ -42,12 +42,12 @@ export function useConversation(projectId: string) {
   }, [statusData, messages.length, setIsChatActive, projectId]);
 
   const generateMutation = useMutation({
-    mutationFn: (id: string) => generationApi.generateArchitecture(id),
+    mutationFn: (id: string) => generationApi.generateRecommendations(id),
     onSuccess: () => {
       queryClient.invalidateQueries();
     },
     onError: () => {
-      addMessage(projectId, { id: nextId(), role: "dopa", content: "⚠️ Failed to generate architecture. Check backend logs." });
+      addMessage(projectId, { id: nextId(), role: "dopa", content: "⚠️ Failed to generate recommendations. Check backend logs." });
     }
   });
 
@@ -59,9 +59,14 @@ export function useConversation(projectId: string) {
       // Prefer the Response Builder's crafted message
       if (data.builder_message) {
         replyContent = data.builder_message;
+        
+        // Trigger recommendation generation if requirements just completed
+        if (data.is_complete && !generateMutation.isPending) {
+          generateMutation.mutate(projectId);
+        }
       } else if (data.is_complete) {
-        replyContent = "✅ All requirements gathered! Generating your architecture now...";
-        if (statusData?.status === "discovery" && !generateMutation.isPending) {
+        replyContent = "✅ All requirements gathered! Generating your options now...";
+        if (!generateMutation.isPending) {
           generateMutation.mutate(projectId);
         }
       } else if (data.next_question) {

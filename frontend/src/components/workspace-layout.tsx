@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { HealthIndicator } from "@/components/health-indicator";
 import { PipelineStatus } from "@/components/pipeline-status";
-import { ProjectSidebar } from "@/components/project-sidebar";
+import { ResourcePalette } from "@/components/resource-palette";
 import { ConversationPanel } from "@/components/conversation-panel";
-import { ArchitectureNotebook } from "@/components/architecture-notebook";
 import { useStore } from "@/store";
-import { ChevronLeft, ChevronRight, MessageSquare, ClipboardList } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -19,7 +18,6 @@ interface WorkspaceLayoutProps {
 
 export default function WorkspaceLayout({ children, projectId, showRightSidebar = true }: WorkspaceLayoutProps) {
   const { rightSidebarOpen, toggleRightSidebar } = useStore();
-  const [rightTab, setRightTab] = useState<"conversation" | "notebook">("conversation");
 
   return (
     <div className="h-screen bg-slate-950 text-slate-50 flex flex-col overflow-hidden">
@@ -38,8 +36,8 @@ export default function WorkspaceLayout({ children, projectId, showRightSidebar 
 
       {/* 3-Pane Workspace */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Sidebar */}
-        <ProjectSidebar currentProjectId={projectId} />
+        {/* Left Sidebar (Resource Palette) */}
+        <ResourcePalette />
 
         {/* Center Area */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
@@ -61,39 +59,17 @@ export default function WorkspaceLayout({ children, projectId, showRightSidebar 
               className="h-full overflow-hidden flex flex-col"
             >
               <div className="w-[340px] h-full flex flex-col min-h-0">
-                {/* Tab bar */}
+                {/* Header bar */}
                 <div className="flex border-b border-slate-800/60 shrink-0">
-                  <button
-                    onClick={() => setRightTab("conversation")}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
-                      rightTab === "conversation"
-                        ? "text-blue-400 border-b-2 border-blue-500 bg-blue-500/5"
-                        : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
-                    }`}
-                  >
+                  <div className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-blue-400 border-b-2 border-blue-500 bg-blue-500/5">
                     <MessageSquare size={12} />
                     Chat
-                  </button>
-                  <button
-                    onClick={() => setRightTab("notebook")}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
-                      rightTab === "notebook"
-                        ? "text-indigo-400 border-b-2 border-indigo-500 bg-indigo-500/5"
-                        : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
-                    }`}
-                  >
-                    <ClipboardList size={12} />
-                    Overview
-                  </button>
+                  </div>
                 </div>
 
-                {/* Tab content */}
+                {/* Content */}
                 <div className="flex-1 p-4 min-h-0 overflow-y-auto">
-                  {rightTab === "conversation" ? (
-                    <ConversationPanel projectId={projectId} />
-                  ) : (
-                    <ArchitectureNotebook projectId={projectId} />
-                  )}
+                  <ConversationPanel projectId={projectId} />
                 </div>
               </div>
             </motion.div>

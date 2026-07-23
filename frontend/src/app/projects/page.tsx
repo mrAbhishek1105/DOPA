@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectsApi } from "@/lib/api/projects";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -16,6 +16,7 @@ import {
   Layers,
   Clock,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 
 /* ─── Status badge config ───────────────────────────── */
@@ -143,21 +144,42 @@ function ProjectCard({ project }: { project: Project }) {
     year: "numeric",
   });
 
+  const queryClient = useQueryClient();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await projectsApi.deleteProject(project.id);
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+    }
+  };
+
   return (
     <motion.div
       variants={staggerItem}
       onClick={() => router.push(`/projects/${project.id}`)}
-      className="group bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 backdrop-blur-sm hover:border-slate-700/50 hover:bg-slate-900/60 transition-all duration-300 cursor-pointer"
+      className="group bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 backdrop-blur-sm hover:border-slate-700/50 hover:bg-slate-900/60 transition-all duration-300 cursor-pointer relative"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/10 flex items-center justify-center">
           <Layers size={18} className="text-blue-400" />
         </div>
-        <span
-          className={`inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-full border ${status.bg} ${status.color}`}
-        >
-          {status.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDelete}
+            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+            title="Delete Project"
+          >
+            <Trash2 size={14} />
+          </button>
+          <span
+            className={`inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-full border ${status.bg} ${status.color}`}
+          >
+            {status.label}
+          </span>
+        </div>
       </div>
       <h3 className="text-base font-semibold text-slate-200 mb-1 group-hover:text-white transition-colors duration-200">
         {project.name}
@@ -184,6 +206,7 @@ function ProjectCard({ project }: { project: Project }) {
 export default function ProjectsPage() {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     data: projects,
@@ -198,6 +221,7 @@ export default function ProjectsPage() {
     setIsCreating(true);
     try {
       const project = await projectsApi.createProject("New Architecture");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       router.push(`/projects/${project.id}`);
     } catch {
       setIsCreating(false);

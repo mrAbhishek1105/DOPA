@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { projectsApi } from "@/lib/api/projects";
 import { useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Project } from "@/types/project";
 import { RequirementsSummary } from "@/components/requirements-summary";
 import { FileText } from "lucide-react";
@@ -17,6 +17,7 @@ export function ProjectSidebar({ currentProjectId }: { currentProjectId?: string
   const { leftSidebarOpen, toggleLeftSidebar } = useStore();
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ["projects"],
@@ -27,6 +28,7 @@ export function ProjectSidebar({ currentProjectId }: { currentProjectId?: string
     setIsCreating(true);
     try {
       const project = await projectsApi.createProject("New Architecture");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       router.push(`/projects/${project.id}`);
     } catch (err) {
       console.error("Failed to create project", err);

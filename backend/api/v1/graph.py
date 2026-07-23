@@ -15,53 +15,46 @@ from backend.services.graph_validator import GraphValidator
 
 router = APIRouter()
 
-class GenerateArchitectureRequest(BaseModel):
-    project_id: uuid.UUID
 
-@router.post("/", response_model=dict[str, Any])
-async def generate_architecture(request: GenerateArchitectureRequest, db: AsyncSession = Depends(get_db)):
+class GenerateGraphRequest(BaseModel):
+    project_id: uuid.UUID
+    selected_option_id: str
+
+
+@router.post("/generate", response_model=dict[str, Any])
+async def generate_graph(request: GenerateGraphRequest, db: AsyncSession = Depends(get_db)):
     repo = ProjectRepository(db)
     project = await repo.get_project(request.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
     if not project.requirements:
-        raise HTTPException(status_code=400, detail="Project has no requirements. Please run discovery first.")
+        raise HTTPException(status_code=400, detail="Project has no requirements.")
 
     latest_req = max(project.requirements, key=lambda r: r.created_at)
-    if not latest_req.is_complete:
-        raise HTTPException(status_code=400, detail="Requirements are not complete yet.")
-
-    # 1. Transform dict into Pydantic model
-    # Wait, RequirementModel takes kwargs.
+    
     try:
-        req_model = RequirementModel(**latest_req.extracted)
+        clean_extracted = {k: v for k, v in (latest_req.extracted or {}).items() if not k.startswith("__")}
+        req_model = RequirementModel(**clean_extracted)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse requirements: {str(e)}")
 
-    # 2. Pattern Engine
     pattern_engine = PatternEngine()
     pattern_result = pattern_engine.match(req_model)
 
-    # 3. Recommendation Engine
     rec_engine = RecommendationEngine()
     recommendations = rec_engine.generate(pattern_result)
 
-    if not recommendations.options:
-        raise HTTPException(status_code=404, detail="No valid architecture recommendations found for these requirements.")
+    selected_option = next((opt for opt in recommendations.options if opt.id == request.selected_option_id), None)
+    if not selected_option:
+        raise HTTPException(status_code=404, detail=f"Recommendation option '{request.selected_option_id}' not found.")
 
-    # Select the top recommendation (option 0)
-    selected_option = recommendations.options[0]
-
-    # 4. Graph Engine
     graph_engine = GraphEngine()
     graph = graph_engine.build(selected_option)
 
-    # 5. Validation
     validator = GraphValidator()
     validation_result = validator.validate(graph)
 
-    # Persist the architecture
     arch = await repo.save_architecture(
         project_id=project.id,
         pattern_id=pattern_result.pattern_id,
@@ -83,7 +76,6 @@ async def generate_architecture(request: GenerateArchitectureRequest, db: AsyncS
         }
     )
 
-    # Update project status
     await repo.update_status(project.id, "graph_generated")
 
     return {

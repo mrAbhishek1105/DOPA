@@ -23,5 +23,5 @@ class RequirementModel(BaseModel):
 
     model_config = {
         "str_strip_whitespace": True,
-        "extra": "forbid",
+        "extra": "ignore",
     }

@@ -84,6 +84,9 @@ async def process_message(request: ConversationMessageRequest, db: AsyncSession 
         is_complete=final_is_complete,
     )
 
+    if final_is_complete and project.status == "discovery":
+        await repo.update_status(project.id, "requirements_gathered")
+
     logger.info(
         "Conversation turn %d for project %s — goal: %s, confidence: %.2f",
         updated_state.turn_count,

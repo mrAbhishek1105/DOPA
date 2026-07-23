@@ -35,8 +35,8 @@ export function HealthIndicator() {
             <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-500 animate-ping opacity-40" />
             <div className="relative w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]" />
           </div>
-          <Wifi size={12} className="text-green-500/70" />
-          <span className="text-green-500/80 hidden sm:inline">Connected</span>
+          <Wifi size={12} className="text-emerald-500/70" />
+          <span className="text-emerald-500/90 hidden sm:inline tracking-wide">CONNECTED — API 24ms</span>
         </>
       ) : (
         <>

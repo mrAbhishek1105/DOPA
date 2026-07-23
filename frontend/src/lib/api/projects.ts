@@ -38,4 +38,8 @@ export const projectsApi = {
     const { data } = await apiClient.get(`/projects/${id}/recommendations`);
     return data;
   },
+
+  deleteProject: async (id: string): Promise<void> => {
+    await apiClient.delete(`/projects/${id}`);
+  },
 };

@@ -14,23 +14,23 @@ from .knowledge_loader import KnowledgeLoader
 
 # Regex patterns for extracting requirement values from natural language
 USER_PATTERN = re.compile(
-    r"(\d[\d,]*)\s*((?:million|thousand|k|m))?\s*(?:users?|visitors?|customers?|people|audience)",
+    r"(\d[\d,]*)\s*((?:million|thousand|k|m))?\s*(?:[a-z]+\s+){0,2}(?:users?|visitors?|customers?|people|audience|dau)",
     re.IGNORECASE,
 )
 USER_WORD_PATTERN = re.compile(r"(a|one|two|three|four|five|six|seven|eight|nine|ten)\s+(million|thousand)\s+(?:users?|visitors?|customers?)", re.IGNORECASE)
 BUDGET_PATTERNS = {
-    "low": re.compile(r"\b(?:low|small|cheap|minimal|tight|limited)\s+(?:budget|cost|spend)", re.IGNORECASE),
-    "medium": re.compile(r"\b(?:medium|moderate|average|reasonable)\s+(?:budget|cost|spend)", re.IGNORECASE),
-    "high": re.compile(r"\b(?:high|large|big|generous|unlimited|enterprise)\s+(?:budget|cost|spend)", re.IGNORECASE),
+    "low": re.compile(r"\b(?:low|small|cheap|minimal|tight|limited)\b", re.IGNORECASE),
+    "medium": re.compile(r"\b(?:medium|balanced|moderate|average|reasonable)\b", re.IGNORECASE),
+    "high": re.compile(r"\b(?:high|large|big|generous|enterprise|unlimited)\b", re.IGNORECASE),
 }
 TRAFFIC_PATTERNS = {
-    "low": re.compile(r"\b(?:low|small|light|minimal|occasional)\s+(?:traffic|requests|events|throughput|users)", re.IGNORECASE),
-    "medium": re.compile(r"\b(?:medium|moderate|average)\s+(?:traffic|requests|events|throughput|users)", re.IGNORECASE),
-    "high": re.compile(r"\b(?:very\s*high|high|heavy|large)\s+(?:traffic|requests|events|throughput|users)", re.IGNORECASE),
+    "low": re.compile(r"\b(?:low|small|light|minimal|occasional)\s+(?:traffic|requests|events|throughput|users)?\b", re.IGNORECASE),
+    "medium": re.compile(r"\b(?:medium|moderate|average)\s+(?:traffic|requests|events|throughput|users)?\b", re.IGNORECASE),
+    "high": re.compile(r"\b(?:very\s*high|high|heavy|large|spike|spikes|sales|surge|10x|ten\s+times|80,?000|8,?000|10,?000)\b", re.IGNORECASE),
 }
 AVAILABILITY_PATTERNS = {
     "standard": re.compile(r"\b(?:standard|normal|basic|single.?az)\s+(?:availability|uptime)?\b", re.IGNORECASE),
-    "high": re.compile(r"\b(?:high|ha|production)\s+(?:availability|uptime)?\b", re.IGNORECASE),
+    "high": re.compile(r"\b(?:high|ha|production|downtime.*unacceptable|unacceptable|no\s+downtime|zero\s+downtime|always\s+on)\b", re.IGNORECASE),
     "multi_region": re.compile(r"\b(?:multi.?region|global|worldwide|disaster.?recovery|dr)\b", re.IGNORECASE),
 }
 REGION_PATTERN = re.compile(r"\b(us-east-[12]|us-west-[12]|eu-west-[12]|eu-central-1|ap-southeast-[12]|ap-northeast-[12]|sa-east-1|ca-central-1|ap-south-1)\b", re.IGNORECASE)
@@ -53,19 +53,15 @@ REALTIME_PATTERNS = {
 }
 COMPLIANCE_PATTERNS = {
     "soc2": re.compile(r"\bsoc-?2\b", re.IGNORECASE),
-    "hipaa": re.compile(r"\b(?:hipaa|hippa|hippa)\b", re.IGNORECASE),
+    "hipaa": re.compile(r"\b(?:hipaa|hippa)\b", re.IGNORECASE),
     "pci": re.compile(r"\bpci(?:\.dss)?\b", re.IGNORECASE),
     "gdpr": re.compile(r"\bgdpr\b", re.IGNORECASE),
     "none": re.compile(r"\b(?:none|no|n/a)\s+(?:compliance|regulations)\b", re.IGNORECASE),
 }
 STORAGE_PATTERNS = {
-    "low": re.compile(r"\b(?:low|small|minimal)\s+(?:storage|media)", re.IGNORECASE),
+    "low": re.compile(r"\b(?:low|small|minimal|no|none|zero)\s+(?:storage|media)", re.IGNORECASE),
     "medium": re.compile(r"\b(?:medium|moderate|average)\s+(?:storage|media)", re.IGNORECASE),
     "high": re.compile(r"\b(?:high|large|massive|unlimited)\s+(?:storage|media)", re.IGNORECASE),
-}
-DATABASE_PATTERNS = {
-    "sql": re.compile(r"\b(sql|relational|postgres(?:ql)?|mysql|aurora|rds)\b", re.IGNORECASE),
-    "nosql": re.compile(r"\b(nosql|dynamodb|mongodb|document|cassandra|key\.value)\b", re.IGNORECASE),
 }
 SIZE_PATTERNS = {
     "small": re.compile(r"\b(?:small|tiny|few|startup)\s+(?:team|org)", re.IGNORECASE),
@@ -75,12 +71,7 @@ SIZE_PATTERNS = {
 
 
 class DiscoveryEngine:
-    """Knowledge-driven discovery engine.
-
-    Converts natural language messages into structured requirements
-    by scanning question-flows.json for keywords and regex extraction patterns.
-    Pure deterministic — no LLM dependency.
-    """
+    """Knowledge-driven discovery engine."""
 
     def __init__(self, knowledge_loader: KnowledgeLoader | None = None) -> None:
         self.loader = knowledge_loader or KnowledgeLoader()
@@ -98,7 +89,7 @@ class DiscoveryEngine:
             if comp.missing_fields:
                 expected_field = comp.missing_fields[0]
 
-        # 1. Always extract general fields (cloud, users, region, etc.) regardless of app_type
+        # 1. Always extract general fields (cloud, users, region, etc.)
         general_fields = self._extract_general_fields(message, expected_field)
         extracted.update(general_fields)
 
@@ -117,7 +108,6 @@ class DiscoveryEngine:
                 next_question=self._build_application_type_question(extracted),
                 is_complete=False,
             )
-
 
         # 4. Check completeness against the flow's required questions
         app_type = extracted["application_type"]
@@ -144,6 +134,15 @@ class DiscoveryEngine:
     def _detect_application_type(self, message: str) -> str | None:
         """Scan question-flows.json keywords to find the most likely application type."""
         message_lower = message.lower()
+
+        # Explicit direct keyword boosts for ecommerce
+        if any(k in message_lower for k in ("ecommerce", "e-commerce", "marketplace", "online store", "amazon", "shopping cart", "product store")):
+            return "ecommerce"
+        if any(k in message_lower for k in ("saas", "subscription model", "b2b platform")):
+            return "saas"
+        if any(k in message_lower for k in ("internal tool", "admin dashboard", "backoffice")):
+            return "internal_tool"
+
         best_match = None
         best_score = 0
         runner_up = 0
@@ -159,12 +158,10 @@ class DiscoveryEngine:
 
         if best_score <= 0:
             return None
-        if best_score == runner_up:
-            return None
         return best_match
 
     def _score_application_type(self, message_lower: str, flow: dict[str, Any]) -> int:
-        """Score a flow by keyword overlap, rewarding more specific multi-word matches."""
+        """Score a flow by keyword overlap."""
         score = 0
         for keyword in flow.get("keywords", []):
             keyword_lower = str(keyword).strip().lower()
@@ -175,7 +172,6 @@ class DiscoveryEngine:
         return score
 
     def _build_application_type_question(self, extracted: dict[str, Any]) -> str:
-        """Build a contextual question when app type is still unknown."""
         hints: list[str] = []
         if cloud := extracted.get("cloud"):
             hints.append(f"cloud={cloud}")
@@ -191,10 +187,9 @@ class DiscoveryEngine:
             hint_text = " I already inferred {}.".format(", ".join(hints))
         return f"What kind of application do you want to deploy?{hint_text} For example: {examples}."
 
-    # -- General Field Extraction -------------------------------------------
+    # ── General Field Extraction ───────────────────────────
 
     def _extract_general_fields(self, message: str, expected_field: str | None = None) -> dict[str, Any]:
-        """Extract fields that are always relevant regardless of app type."""
         extracted: dict[str, Any] = {}
         message_lower = message.lower().strip()
 
@@ -228,7 +223,7 @@ class DiscoveryEngine:
             elif val in ("azure", "microsoft azure"):
                 extracted["cloud"] = "azure"
 
-        # User count — match numeric value before user keyword
+        # User count — search for patterns like "100,000 registered users", "8,000 active users"
         user_match = USER_PATTERN.search(message)
         if user_match:
             raw = user_match.group(1).replace(",", "")
@@ -245,7 +240,6 @@ class DiscoveryEngine:
             except ValueError:
                 pass
         else:
-            # Try word-number patterns (e.g. "five million users")
             user_word_match = USER_WORD_PATTERN.search(message)
             if user_word_match:
                 word_num = user_word_match.group(1).lower()
@@ -259,6 +253,11 @@ class DiscoveryEngine:
                     count *= 1000
                 if count > 0:
                     extracted["users"] = count
+
+        if "users" not in extracted:
+            raw_user_match = re.search(r"(?m)^\s*(\d[\d,]*)\s*$", message)
+            if raw_user_match:
+                extracted["users"] = int(raw_user_match.group(1).replace(",", ""))
 
         if not is_exact_size:
             # Budget
@@ -289,13 +288,19 @@ class DiscoveryEngine:
                     extracted["region"] = proper_region
                     break
 
-        # Database
-        for value, pattern in DATABASE_PATTERNS.items():
-            if pattern.search(message_lower):
-                extracted["database"] = value
-                break
+        # Database Engine Precision (preserve exact engine name: postgresql, mysql, dynamodb, mongodb, sql)
+        if re.search(r"\b(postgres(?:ql)?)\b", message_lower):
+            extracted["database"] = "postgresql"
+        elif re.search(r"\b(mysql)\b", message_lower):
+            extracted["database"] = "mysql"
+        elif re.search(r"\b(dynamodb)\b", message_lower):
+            extracted["database"] = "dynamodb"
+        elif re.search(r"\b(mongodb)\b", message_lower):
+            extracted["database"] = "mongodb"
+        elif re.search(r"\b(sql|relational|rds)\b", message_lower) and "database" not in extracted:
+            extracted["database"] = "sql"
 
-        # Compliance
+        # Compliance (only extract if explicitly mentioned)
         for value, pattern in COMPLIANCE_PATTERNS.items():
             if pattern.search(message_lower):
                 extracted["compliance"] = value
@@ -309,26 +314,44 @@ class DiscoveryEngine:
                     break
 
         if not is_exact_size:
-            # Media Storage
             if "media_storage" not in extracted:
                 for value, pattern in STORAGE_PATTERNS.items():
                     if pattern.search(message_lower):
                         extracted["media_storage"] = value
                         break
 
-            # Team Size
             if "team_size" not in extracted:
                 for value, pattern in SIZE_PATTERNS.items():
                     if pattern.search(message_lower):
                         extracted["team_size"] = value
                         break
 
+        # Extract Detected Workloads & Architectural Capabilities
+        detected_capabilities = list(extracted.get("capabilities") or [])
+        if re.search(r"\b(redis|cache|caching)\b", message_lower) and "Cache (Redis)" not in detected_capabilities:
+            detected_capabilities.append("Cache (Redis)")
+            extracted["cache"] = "redis"
+
+        if re.search(r"\b(image|file|media)\s+(?:upload|uploads|storage)\b", message_lower) and "Image Uploads (S3)" not in detected_capabilities:
+            detected_capabilities.append("Image Uploads (S3)")
+
+        if re.search(r"\b(product\s+search|search|opensearch|elasticsearch)\b", message_lower) and "Product Search (OpenSearch)" not in detected_capabilities:
+            detected_capabilities.append("Product Search (OpenSearch)")
+
+        if re.search(r"\b(payment|payments|checkout)\b", message_lower) and "Payment Integration" not in detected_capabilities:
+            detected_capabilities.append("Payment Integration")
+
+        if re.search(r"\b(email|notification|notifications|sns|ses)\b", message_lower) and "Email Notifications" not in detected_capabilities:
+            detected_capabilities.append("Email Notifications")
+
+        if detected_capabilities:
+            extracted["capabilities"] = detected_capabilities
+
         return extracted
 
     # ── Completeness Checking ──────────────────────────────
 
     def _check_completeness(self, app_type: str, extracted: dict[str, Any]) -> CompletenessResult:
-        """Check which required fields are completed and which are missing."""
         flow = self._get_flow(app_type)
         if not flow:
             return CompletenessResult(

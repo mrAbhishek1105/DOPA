@@ -2,8 +2,7 @@
 
 import { use } from "react";
 import WorkspaceLayout from "@/components/workspace-layout";
-import { RecommendationCards } from "@/components/recommendation-cards";
-import { GraphCanvas } from "@/components/graph-canvas";
+import { CanvasWorkspace } from "@/components/canvas-workspace";
 import { AnimatedPromptInput } from "@/components/animated-prompt-input";
 import { useConversation } from "@/hooks/use-conversation";
 import { useStore } from "@/store";
@@ -26,26 +25,17 @@ export default function ProjectWorkspace({ params }: { params: Promise<{ id: str
     <WorkspaceLayout projectId={id} showRightSidebar={isChatActive}>
       <div className="flex flex-col h-full overflow-hidden relative">
         
-        {/* Main Canvas Area */}
+        {/* Main Dashboard Area */}
         <AnimatePresence>
           {isChatActive && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex-1 flex flex-col min-h-0 p-4 space-y-4"
+              className="flex-1 flex flex-col min-h-0 p-5 space-y-4"
             >
-              {/* Recommendations */}
-              <div className="shrink-0 rounded-xl border border-slate-800/60 bg-slate-900/30 backdrop-blur-sm p-4 h-44">
-                <h2 className="text-sm font-semibold mb-2 text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  Architecture Options
-                </h2>
-                <RecommendationCards projectId={id} />
-              </div>
-
-              {/* Graph Canvas */}
-              <div className="flex-1 rounded-xl border border-slate-800/60 bg-slate-900/30 backdrop-blur-sm overflow-hidden relative">
-                <GraphCanvas projectId={id} />
+              {/* Main Workspace Pane: Canvas-First View */}
+              <div className="flex-1 min-h-0">
+                <CanvasWorkspace projectId={id} />
               </div>
             </motion.div>
           )}

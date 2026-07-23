@@ -57,6 +57,14 @@ async def get_project(project_id: uuid.UUID, db: AsyncSession = Depends(get_db))
         "reports": len(project.reports)
     }
 
+@router.delete("/{project_id}")
+async def delete_project(project_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    repo = ProjectRepository(db)
+    success = await repo.delete_project(project_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"status": "deleted"}
+
 @router.get("/{project_id}/requirements", response_model=dict[str, Any])
 async def get_project_requirements(project_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     repo = ProjectRepository(db)
@@ -100,6 +108,10 @@ async def get_project_graph(project_id: uuid.UUID, db: AsyncSession = Depends(ge
         "edges": latest_arch.edges
     }
 
+from backend.schemas.requirements import RequirementModel
+from backend.services.pattern_engine import PatternEngine
+from backend.services.recommendation_engine import RecommendationEngine
+
 @router.get("/{project_id}/recommendations", response_model=dict[str, Any])
 async def get_project_recommendations(project_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     repo = ProjectRepository(db)
@@ -107,25 +119,43 @@ async def get_project_recommendations(project_id: uuid.UUID, db: AsyncSession = 
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    if not project.architectures:
+    if not project.requirements:
         return {"options": []}
 
-    latest_arch = max(project.architectures, key=lambda a: a.created_at)
-    metrics = latest_arch.metadata_info.get("metrics", {})
-    
-    return {
-        "options": [
-            {
-                "id": latest_arch.metadata_info.get("recommendation_id", "A"),
-                "name": latest_arch.metadata_info.get("recommendation_name", "Unknown"),
-                "score": latest_arch.score,
-                "score_percent": int(latest_arch.score * 100),
-                "is_selected": True,
-                "cost": metrics.get("cost", 50),
-                "complexity": metrics.get("complexity", 50),
-                "scalability": metrics.get("scalability", 50),
-                "security": metrics.get("security", 50),
-                "reliability": metrics.get("reliability", 50),
-            }
-        ]
-    }
+    latest_req = max(project.requirements, key=lambda r: r.created_at)
+    if not latest_req.is_complete:
+        return {"options": []}
+
+    if project.status not in ("options_generated", "graph_generated", "completed"):
+        return {"options": []}
+
+    try:
+        clean_extracted = {k: v for k, v in (latest_req.extracted or {}).items() if not k.startswith("__")}
+        req_model = RequirementModel(**clean_extracted)
+    except Exception:
+        return {"options": []}
+
+    pattern_engine = PatternEngine()
+    pattern_result = pattern_engine.match(req_model)
+
+    rec_engine = RecommendationEngine()
+    recommendations = rec_engine.generate(pattern_result)
+
+    selected_option_id = None
+    if project.architectures:
+        latest_arch = max(project.architectures, key=lambda a: a.created_at)
+        selected_option_id = latest_arch.metadata_info.get("recommendation_id")
+
+    options_data = []
+    for opt in recommendations.options:
+        data = opt.model_dump()
+        data["is_selected"] = (opt.id == selected_option_id)
+        if opt.metrics:
+            data["cost"] = opt.metrics.cost
+            data["complexity"] = opt.metrics.complexity
+            data["scalability"] = opt.metrics.scalability
+            data["security"] = opt.metrics.security
+            data["reliability"] = opt.metrics.reliability
+        options_data.append(data)
+
+    return {"options": options_data}
