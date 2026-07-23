@@ -1,0 +1,18 @@
+{
+  "horizontal_scaling": {"priority": 100},
+  "load_balancer": {"priority": 95},
+  "multi_az": {"priority": 90},
+  "health_checks": {"priority": 85},
+  "cache": {"priority": 80},
+  "cdn": {"priority": 80},
+  "object_storage": {"priority": 75},
+  "payment_gateway": {"priority": 70},
+  "managed_database": {"priority": 70},
+  "monitoring": {"priority": 65},
+  "backup": {"priority": 60},
+  "managed_services": {"priority": 50},
+  "dns": {"priority": 40},
+  "tls": {"priority": 40},
+  "origin": {"priority": 35},
+  "metrics": {"priority": 35}
+}

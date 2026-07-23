@@ -1,0 +1,65 @@
+[
+  {
+    "id": "high_traffic_rule",
+    "conditions": {
+      "traffic": "high"
+    },
+    "capabilities": [
+      "horizontal_scaling",
+      "cache",
+      "load_balancer"
+    ],
+    "priority": 100,
+    "reason": "High traffic requires more scalable and distributed request handling."
+  },
+  {
+    "id": "high_availability_rule",
+    "conditions": {
+      "availability": "high"
+    },
+    "capabilities": [
+      "multi_az",
+      "load_balancer",
+      "health_checks"
+    ],
+    "priority": 95,
+    "reason": "High availability implies resilient traffic routing and failure tolerance."
+  },
+  {
+    "id": "ecommerce_rule",
+    "conditions": {
+      "application_type": "ecommerce"
+    },
+    "capabilities": [
+      "object_storage",
+      "payment_gateway",
+      "cdn"
+    ],
+    "priority": 90,
+    "reason": "Ecommerce workloads usually need secure content delivery and object storage."
+  },
+  {
+    "id": "postgresql_rule",
+    "conditions": {
+      "database": "postgresql"
+    },
+    "capabilities": [
+      "managed_database",
+      "backup",
+      "monitoring"
+    ],
+    "priority": 85,
+    "reason": "PostgreSQL suggests managed relational storage with operational observability."
+  },
+  {
+    "id": "budget_medium_rule",
+    "conditions": {
+      "budget": "medium"
+    },
+    "capabilities": [
+      "managed_services"
+    ],
+    "priority": 40,
+    "reason": "A medium budget favors managed and operationally simpler services."
+  }
+]

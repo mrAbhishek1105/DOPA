@@ -1,0 +1,20 @@
+[
+  {
+    "field": "monitoring",
+    "default": "basic",
+    "reason": "Monitoring is assumed to be basic unless the user explicitly requests otherwise.",
+    "confidence": 0.8
+  },
+  {
+    "field": "backup",
+    "default": "daily",
+    "reason": "A daily backup policy is assumed for managed data stores.",
+    "confidence": 0.8
+  },
+  {
+    "field": "authentication",
+    "default": "managed_identity",
+    "reason": "Managed identity is assumed for service-to-service access unless specified.",
+    "confidence": 0.8
+  }
+]

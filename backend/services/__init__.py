@@ -1,3 +1,4 @@
+from backend.engines.reasoning.engine import ReasoningEngine
 from .graph_engine import GraphEngine
 from .knowledge_loader import KnowledgeLoader
 from .knowledge_validator import KnowledgeValidator, KnowledgeValidationError
@@ -16,4 +17,5 @@ __all__ = [
     "PatternEngine",
     "RecommendationEngine",
     "MetricEngine",
+    "ReasoningEngine",
 ]

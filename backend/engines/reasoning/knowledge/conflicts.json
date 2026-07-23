@@ -1,0 +1,23 @@
+[
+  {
+    "id": "budget_vs_availability",
+    "conditions": {
+      "budget": "low",
+      "availability": "high"
+    },
+    "severity": "high",
+    "message": "High availability requirements conflict with a low budget target.",
+    "recommendation": "Reduce the number of regions or choose managed services to control cost.",
+    "blocking": false
+  },
+  {
+    "id": "serverless_vs_persistent_connection",
+    "conditions": {
+      "application_type": "realtime"
+    },
+    "severity": "medium",
+    "message": "Long-lived persistent connections are not ideal for pure serverless-only designs.",
+    "recommendation": "Use a managed container or event-driven hybrid architecture.",
+    "blocking": false
+  }
+]

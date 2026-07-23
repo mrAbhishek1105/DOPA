@@ -1,0 +1,21 @@
+{
+  "cache": [
+    "monitoring"
+  ],
+  "cdn": [
+    "dns",
+    "tls",
+    "origin"
+  ],
+  "load_balancer": [
+    "health_checks"
+  ],
+  "horizontal_scaling": [
+    "health_checks",
+    "metrics"
+  ],
+  "managed_database": [
+    "backup",
+    "monitoring"
+  ]
+}
