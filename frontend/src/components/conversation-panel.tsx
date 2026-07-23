@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bot, User, Cpu, CheckCircle2, FileText, Shield, Layers } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useConversation } from "@/hooks/use-conversation";
+import { useWorkspaceMode } from "@/hooks/use-workspace-mode";
 
 const PIPELINE_STEPS = [
   { label: "Parsing Requirements", icon: Cpu },
@@ -16,9 +17,10 @@ const PIPELINE_STEPS = [
 export function ConversationPanel({ projectId }: { projectId: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [activeTab, setActiveTab] = useState<"chat" | "summary">("chat");
+  const [activeTab, setActiveTab] = useState<"conversation" | "decisions" | "suggestions" | "changes">("conversation");
 
   const { messages, isPending } = useConversation(projectId);
+  const { mode } = useWorkspaceMode(projectId);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -43,34 +45,67 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex flex-col h-full bg-slate-950/60 rounded-2xl border border-slate-800/60 overflow-hidden shadow-xl">
-      {/* Architect Review Header Tabs */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 px-3 py-2 bg-slate-950 shrink-0">
-        <div className="flex items-center gap-1">
+      {/* Architect Assistant Header Tabs */}
+      <div className="flex items-center justify-between border-b border-slate-800/80 px-2 py-2 bg-slate-950 shrink-0">
+        <div className="flex items-center gap-1 w-full justify-between">
           <button
-            onClick={() => setActiveTab("chat")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-              activeTab === "chat" ? "bg-blue-600/20 text-blue-400 border border-blue-500/30" : "text-slate-400 hover:text-slate-200"
+            onClick={() => setActiveTab("conversation")}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all flex-1 ${
+              activeTab === "conversation" ? "bg-blue-600/20 text-blue-400 border border-blue-500/30" : "text-slate-400 hover:text-slate-200"
             }`}
           >
             Conversation
           </button>
           <button
-            onClick={() => setActiveTab("summary")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-              activeTab === "summary" ? "bg-slate-800/80 text-slate-200 border border-slate-700" : "text-slate-400 hover:text-slate-200"
+            onClick={() => setActiveTab("decisions")}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all flex-1 ${
+              activeTab === "decisions" ? "bg-slate-800/80 text-slate-200 border border-slate-700" : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            Summary
+            Decisions
+          </button>
+          <button
+            onClick={() => setActiveTab("suggestions")}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all flex-1 ${
+              activeTab === "suggestions" ? "bg-slate-800/80 text-slate-200 border border-slate-700" : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Suggestions
+          </button>
+          <button
+            onClick={() => setActiveTab("changes")}
+            className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-all flex-1 ${
+              activeTab === "changes" ? "bg-slate-800/80 text-slate-200 border border-slate-700" : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Changes
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden p-3">
-        {activeTab === "chat" && (
-          <ScrollArea className="h-full pr-2" ref={scrollRef}>
-            <div className="space-y-3 pb-2">
-              <AnimatePresence initial={false}>
+      <div className="flex-1 overflow-hidden p-3 flex flex-col">
+        {activeTab === "conversation" && (
+          <>
+            {/* Architecture Status Strip */}
+            <div className="mb-3 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800/60 shadow-sm flex flex-col gap-1.5 shrink-0">
+              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <span>Architecture Status</span>
+                <span className="text-blue-400">{mode.replace("_", " ")}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-300">Requirements</span>
+                <span className="text-xs font-semibold text-emerald-400">2 / 8</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Next Goal</span>
+                <span className="text-xs text-slate-200">Identify database</span>
+              </div>
+            </div>
+
+            <ScrollArea className="flex-1 pr-2" ref={scrollRef}>
+              <div className="space-y-3 pb-2">
+                <AnimatePresence initial={false}>
                 {messages.map((msg) => (
                   <motion.div
                     key={msg.id}
@@ -159,23 +194,43 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
               )}
             </div>
           </ScrollArea>
+          </>
         )}
 
-        {activeTab === "summary" && (
+        {activeTab === "decisions" && (
           <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Understood Requirements Summary</h4>
-            <div className="space-y-1 text-slate-300">
-              <div>• <strong>App Type:</strong> E-Commerce Marketplace</div>
-              <div>• <strong>Region:</strong> AWS ap-south-1 (Mumbai)</div>
-              <div>• <strong>Target Scale:</strong> 100,000 Registered Users</div>
-              <div>• <strong>Database:</strong> PostgreSQL Multi-AZ</div>
-              <div>• <strong>Cache:</strong> ElastiCache Redis</div>
-              <div>• <strong>Availability:</strong> 99.99% Multi-AZ SLA</div>
+            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Architectural Decisions</h4>
+            <div className="space-y-1 text-slate-400 italic">No decisions logged yet.</div>
+          </div>
+        )}
+
+        {activeTab === "suggestions" && (
+          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
+            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Context-Aware Suggestions</h4>
+            <div className="space-y-1 text-slate-400">
+              {(mode === "DISCOVERY" || mode === "ARCHITECTURE_SELECTION") ? (
+                <>
+                  <div>• Ask about compliance requirements</div>
+                  <div>• Ask about data storage needs</div>
+                  <div>• Ask about Disaster Recovery (DR)</div>
+                </>
+              ) : (
+                <>
+                  <div>• Replace ECS with Lambda for cost savings</div>
+                  <div>• Add WAF for improved security</div>
+                  <div>• Enable Multi-AZ on database</div>
+                </>
+              )}
             </div>
           </div>
         )}
 
-
+        {activeTab === "changes" && (
+          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
+            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Change Log</h4>
+            <div className="space-y-1 text-slate-400 italic">No changes made.</div>
+          </div>
+        )}
       </div>
     </div>
   );

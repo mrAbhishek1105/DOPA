@@ -22,7 +22,20 @@ export default function ProjectWorkspace({ params }: { params: Promise<{ id: str
   };
 
   return (
-    <WorkspaceLayout projectId={id} showRightSidebar={isChatActive}>
+    <WorkspaceLayout 
+      projectId={id} 
+      showRightSidebar={isChatActive}
+      bottomPanel={
+        <div className={`w-full flex shrink-0 ${!isChatActive ? "absolute inset-0 flex-col items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm" : "pt-2 pb-4 bg-slate-950"}`}>
+          <AnimatedPromptInput 
+            onSubmit={handleInitialSubmit} 
+            isLoading={isPending} 
+            isCentered={!isChatActive}
+            isComplete={isComplete}
+          />
+        </div>
+      }
+    >
       <div className="flex flex-col h-full overflow-hidden relative">
         
         {/* Main Dashboard Area */}
@@ -41,16 +54,6 @@ export default function ProjectWorkspace({ params }: { params: Promise<{ id: str
           )}
         </AnimatePresence>
 
-        {/* Empty State Centering Wrapper */}
-        <div className={`w-full flex shrink-0 ${!isChatActive ? "absolute inset-0 flex-col items-center justify-center" : "pt-2 pb-4"}`}>
-          <AnimatedPromptInput 
-            onSubmit={handleInitialSubmit} 
-            isLoading={isPending} 
-            isCentered={!isChatActive}
-            isComplete={isComplete}
-          />
-        </div>
-        
       </div>
     </WorkspaceLayout>
   );

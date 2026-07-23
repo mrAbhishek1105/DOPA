@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { generationApi } from "@/lib/api/generation";
 import { projectsApi } from "@/lib/api/projects";
 import { getBackendRoot } from "@/lib/api/client";
+import { useWorkspaceMode } from "@/hooks/use-workspace-mode";
 import { GraphCanvas } from "@/components/graph-canvas";
 import { TerraformViewer } from "@/components/terraform-viewer";
 import {
@@ -16,7 +17,11 @@ import {
   ChevronRight,
   X,
   Play,
-  Layers
+  Layers,
+  MessageSquare,
+  Cpu,
+  GitBranch,
+  Rocket
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,6 +34,7 @@ type FloatingPanel = "terraform" | "security" | "cost" | "validation" | null;
 export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
   const [activePanel, setActivePanel] = useState<FloatingPanel>(null);
   const queryClient = useQueryClient();
+  const { mode } = useWorkspaceMode(projectId);
 
   const { data: projectStatus } = useQuery({
     queryKey: ["status", projectId],
@@ -68,54 +74,123 @@ export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
 
   const confidenceScore = expData?.confidence_score ?? 92;
   const architectureName = expData?.title || "Standard Architecture";
+  
+  // Disable execution unless we have a fully generated and validated architecture
+  const canExecute = mode === "ARCHITECTURE_REVIEW" || mode === "EXPORT";
 
   return (
     <div className="flex flex-col h-full relative bg-[#0B1120] rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl">
       {/* TOP CONTROLS BAR */}
       <div className="h-14 border-b border-slate-800/60 bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-4 z-20 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-400">Controls for terraform execution</span>
-          <span className="text-[10px] text-slate-500 italic">(enabled only when graph is ready)</span>
+          <span className="text-xs font-semibold text-slate-400">Architecture Workbench</span>
         </div>
         
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleDownload}
-            disabled={runPipelineMutation.isPending || projectStatus?.status !== "completed"}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]"
-          >
-            {runPipelineMutation.isPending ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Play size={14} className="fill-white" />
-            )}
-            Execute Terraform
-          </button>
+          {canExecute ? (
+            <button
+              onClick={handleDownload}
+              disabled={runPipelineMutation.isPending}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]"
+            >
+              {runPipelineMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} className="fill-white" />}
+              Execute Terraform
+            </button>
+          ) : (
+            <div
+              title="Waiting for architecture validation"
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-slate-700/60 text-slate-500 text-xs font-medium cursor-not-allowed select-none"
+            >
+              <Play size={14} />
+              Execute Terraform
+            </div>
+          )}
         </div>
       </div>
 
       {/* CANVAS AREA WITH OVERLAYS */}
       <div className="flex-1 relative overflow-hidden">
         
+        {/* Guided State Overlay — live progress (shown during Discovery/Selection) */}
+        <AnimatePresence>
+          {(mode === "DISCOVERY" || mode === "ARCHITECTURE_SELECTION") && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none bg-slate-950/50 backdrop-blur-[3px]"
+            >
+              <div className="bg-slate-900/90 border border-slate-800/80 p-8 rounded-2xl shadow-2xl max-w-sm w-full pointer-events-auto backdrop-blur-xl">
+                <div className="flex items-center gap-2 mb-6">
+                  <Layers size={18} className="text-blue-400" />
+                  <h2 className="text-base font-bold text-white">Architecture Workspace</h2>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Describe your application",    done: true,                                  active: mode === "DISCOVERY" },
+                    { label: "Answer DOPA's questions",      done: false,                                 active: mode === "DISCOVERY" },
+                    { label: "Review architecture options",  done: false,                                 active: mode === "ARCHITECTURE_SELECTION" },
+                    { label: "Select an architecture",       done: false,                                 active: mode === "ARCHITECTURE_SELECTION" },
+                    { label: "Explore graph & Terraform",    done: false,                                 active: false },
+                  ].map((step, i) => (
+                    <div key={i} className={`flex items-center gap-3 text-sm transition-colors ${
+                      step.done ? "text-emerald-400" : step.active ? "text-white" : "text-slate-600"
+                    }`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border text-[11px] font-bold ${
+                        step.done
+                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                          : step.active
+                          ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
+                          : "bg-slate-800 border-slate-700 text-slate-600"
+                      }`}>
+                        {step.done ? <CheckCircle2 size={12} /> : i + 1}
+                      </div>
+                      <span className={step.active ? "font-medium" : ""}>{step.label}</span>
+                      {step.active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* The Actual Graph Canvas */}
         <div className="absolute inset-0">
           <GraphCanvas projectId={projectId} />
         </div>
 
-        {/* Top-Left: Architecture Info */}
-        <div className="absolute top-4 left-4 z-10 pointer-events-none">
-          <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700/50 rounded-xl p-3 shadow-lg pointer-events-auto flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Layers size={16} className="text-blue-400" />
-              <span className="text-xs font-bold text-slate-200">{architectureName}</span>
-            </div>
-            <ChevronRight size={14} className="text-slate-600" />
-            <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold">Confidence</span>
-              <span className="text-sm font-black text-emerald-400 leading-none">{confidenceScore}%</span>
-            </div>
-          </div>
-        </div>
+        {/* Top-Left: Architecture Summary Hero */}
+        <AnimatePresence>
+          {mode !== "DISCOVERY" && mode !== "ARCHITECTURE_SELECTION" && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="absolute top-4 left-4 z-20 pointer-events-none"
+            >
+              <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-4 shadow-2xl pointer-events-auto min-w-[260px]">
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-800">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                    <Layers size={14} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white">{architectureName}</div>
+                    <div className="text-[10px] text-slate-500">Architecture Session</div>
+                  </div>
+                </div>
+                {/* Stats grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Stat label="Confidence" value={`${confidenceScore}%`} color="text-emerald-400" />
+                  <Stat label="Cloud" value="AWS" color="text-blue-400" />
+                  <Stat label="Est. Cost" value={`$${costData?.monthly_cost ?? 240}/mo`} color="text-amber-400" />
+                  <Stat label="Status" value={mode === "EXPORT" ? "Validated" : "Reviewing"} color={mode === "EXPORT" ? "text-emerald-400" : "text-indigo-400"} />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Right Side: Floating Toggles */}
         <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
@@ -301,6 +376,15 @@ function ValidationPanel({ projectId }: { projectId: string }) {
         </div>
         <p className="text-[11px] text-slate-400">AWS Well-Architected Framework alignment verified across all tiers.</p>
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div className="bg-slate-950/60 border border-slate-800/60 rounded-xl p-2.5">
+      <div className="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mb-0.5">{label}</div>
+      <div className={`text-sm font-bold leading-none ${color}`}>{value}</div>
     </div>
   );
 }
