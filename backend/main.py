@@ -11,6 +11,7 @@ from backend.api.v1 import (
     recommendations,
     reports,
     security,
+    synthesis,
     terraform,
     validation,
 )
@@ -36,6 +37,7 @@ app.include_router(cost.router, prefix="/api/v1/cost", tags=["cost"])
 app.include_router(validation.router, prefix="/api/v1/validation", tags=["validation"])
 app.include_router(explanation.router, prefix="/api/v1/explanation", tags=["explanation"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
+app.include_router(synthesis.router, prefix="/api/v1/synthesis", tags=["synthesis"])
 
 
 @app.get("/health")

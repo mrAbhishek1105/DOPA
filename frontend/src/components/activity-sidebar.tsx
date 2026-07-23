@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWorkspaceMode } from "@/hooks/use-workspace-mode";
 import { RequirementsSummary } from "@/components/requirements-summary";
+import { useStore } from "@/store";
 import {
   ChevronDown,
   ChevronRight,
@@ -19,9 +20,14 @@ import {
   Cpu,
   Activity,
   GitCommit,
+  Undo2,
+  Redo2,
+  GripVertical,
+  GitBranch,
+  CheckCircle,
 } from "lucide-react";
 
-// Full AWS service tree — each category with example services
+// ─── AWS Service Tree ──────────────────────────────────────────────────────────
 const AWS_TREE = [
   {
     label: "Networking",
@@ -81,12 +87,27 @@ const AWS_TREE = [
   },
 ];
 
-// Git-style history entries
-const HISTORY_ENTRIES = [
-  { version: "v2", label: "Added Redis Cache", time: "Just now", current: true },
-  { version: "v1", label: "Initial Architecture", time: "5 min ago", current: false },
-];
+// ─── Draggable Service Item ────────────────────────────────────────────────────
+function DraggableService({ name }: { name: string }) {
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("application/dopa-service", name);
+    e.dataTransfer.effectAllowed = "copy";
+  };
 
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      className="group text-[11px] text-slate-500 hover:text-blue-400 cursor-grab active:cursor-grabbing px-2 py-1 rounded hover:bg-slate-800/40 transition-colors flex items-center gap-1.5"
+      title={`Drag "${name}" onto the canvas`}
+    >
+      <GripVertical size={9} className="text-slate-700 group-hover:text-blue-500 shrink-0 transition-colors" />
+      {name}
+    </div>
+  );
+}
+
+// ─── Explorer Category ─────────────────────────────────────────────────────────
 function ExplorerCategory({
   label,
   icon: Icon,
@@ -119,14 +140,9 @@ function ExplorerCategory({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="pl-4 py-0.5 space-y-0.5">
+            <div className="pl-3 py-0.5 space-y-0.5">
               {services.map((svc) => (
-                <div
-                  key={svc}
-                  className="text-[11px] text-slate-500 hover:text-blue-400 cursor-pointer px-2 py-1 rounded hover:bg-slate-800/40 transition-colors"
-                >
-                  {svc}
-                </div>
+                <DraggableService key={svc} name={svc} />
               ))}
             </div>
           </motion.div>
@@ -136,8 +152,19 @@ function ExplorerCategory({
   );
 }
 
+// ─── Timestamp helper ──────────────────────────────────────────────────────────
+function timeAgo(ts: number): string {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 5) return "Just now";
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  return `${Math.floor(diff / 3600)}h ago`;
+}
+
+// ─── Main Sidebar ──────────────────────────────────────────────────────────────
 export function ActivitySidebar({ projectId }: { projectId: string }) {
   const { mode } = useWorkspaceMode(projectId);
+  const { graphHistory, historyHead, undo, redo, canUndo, canRedo } = useStore();
 
   // Accordion states
   const [reqsOpen, setReqsOpen] = useState(true);
@@ -149,11 +176,29 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
     if (mode === "DISCOVERY" || mode === "ARCHITECTURE_SELECTION") {
       setReqsOpen(true);
       setExplorerOpen(false);
+      setHistoryOpen(false);
     } else {
       setReqsOpen(false);
       setExplorerOpen(true);
+      setHistoryOpen(true);
     }
   }, [mode]);
+
+  // Keyboard shortcuts: Ctrl+Z / Ctrl+Y
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        if (canUndo()) undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+        e.preventDefault();
+        if (canRedo()) redo();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [canUndo, canRedo, undo, redo]);
 
   return (
     <div className="w-64 h-full border-r border-slate-800/60 bg-slate-900/40 backdrop-blur-sm flex flex-col shrink-0">
@@ -164,7 +209,7 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
 
       <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
 
-        {/* Requirements Section */}
+        {/* ── Requirements ── */}
         <div>
           <button
             onClick={() => setReqsOpen(!reqsOpen)}
@@ -193,7 +238,7 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
           </AnimatePresence>
         </div>
 
-        {/* Architecture Explorer Section */}
+        {/* ── Architecture Explorer (drag-to-canvas) ── */}
         <div>
           <button
             onClick={() => setExplorerOpen(!explorerOpen)}
@@ -215,7 +260,12 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
                 className="overflow-hidden"
               >
                 <div className="bg-slate-950/60 border border-slate-800/60 rounded-lg p-2">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase px-1 mb-2">
+                  {/* Drag hint */}
+                  <div className="flex items-center gap-1 text-[9px] text-slate-600 px-1 mb-2">
+                    <GripVertical size={9} />
+                    Drag services onto the canvas
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-500 uppercase px-1 mb-1.5">
                     AWS Services
                   </div>
                   <div className="space-y-0.5">
@@ -229,7 +279,7 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
           </AnimatePresence>
         </div>
 
-        {/* History Section — Git style */}
+        {/* ── History (Undo / Redo + Git log) ── */}
         <div>
           <button
             onClick={() => setHistoryOpen(!historyOpen)}
@@ -238,6 +288,11 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
             <div className="flex items-center gap-2">
               <History size={14} />
               History
+              {graphHistory.length > 0 && (
+                <span className="text-[9px] font-mono text-slate-600">
+                  ({historyHead + 1}/{graphHistory.length})
+                </span>
+              )}
             </div>
             {historyOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
@@ -248,40 +303,104 @@ export function ActivitySidebar({ projectId }: { projectId: string }) {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden space-y-1"
+                className="overflow-hidden space-y-2"
               >
-                {HISTORY_ENTRIES.map((entry) => (
+                {/* Undo / Redo toolbar */}
+                <div className="flex items-center gap-1 bg-slate-950/60 border border-slate-800/60 rounded-lg p-1.5">
                   <button
-                    key={entry.version}
-                    className={`w-full text-left p-2.5 rounded-lg flex items-start gap-2.5 transition-colors ${
-                      entry.current
-                        ? "bg-slate-800/60 border border-blue-500/30"
-                        : "hover:bg-slate-800/40 border border-transparent"
+                    onClick={undo}
+                    disabled={!canUndo()}
+                    title="Undo (Ctrl+Z)"
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                      canUndo()
+                        ? "text-blue-400 hover:bg-slate-800/60 hover:text-blue-300"
+                        : "text-slate-700 cursor-not-allowed"
                     }`}
                   >
-                    <GitCommit
-                      size={14}
-                      className={entry.current ? "text-blue-400 shrink-0 mt-0.5" : "text-slate-600 shrink-0 mt-0.5"}
-                    />
-                    <div>
-                      <div
-                        className={`text-xs font-semibold ${
-                          entry.current ? "text-blue-300" : "text-slate-400"
-                        }`}
-                      >
-                        {entry.label}
-                      </div>
-                      <div className="text-[10px] text-slate-600">
-                        {entry.version} · {entry.time}
-                      </div>
-                    </div>
-                    {entry.current && (
-                      <span className="ml-auto text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-bold">
-                        HEAD
-                      </span>
-                    )}
+                    <Undo2 size={13} />
+                    Undo
                   </button>
-                ))}
+                  <div className="w-px h-5 bg-slate-800" />
+                  <button
+                    onClick={redo}
+                    disabled={!canRedo()}
+                    title="Redo (Ctrl+Y)"
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                      canRedo()
+                        ? "text-blue-400 hover:bg-slate-800/60 hover:text-blue-300"
+                        : "text-slate-700 cursor-not-allowed"
+                    }`}
+                  >
+                    Redo
+                    <Redo2 size={13} />
+                  </button>
+                </div>
+
+                {/* Git-style commit log */}
+                {graphHistory.length === 0 ? (
+                  <div className="text-[11px] text-slate-600 text-center py-2">
+                    No history yet
+                  </div>
+                ) : (
+                  <div className="relative pl-3 space-y-0 border-l border-slate-800/60 ml-2">
+                    {/* Render in reverse so newest is on top */}
+                    {[...graphHistory].reverse().map((entry, revIdx) => {
+                      const idx = graphHistory.length - 1 - revIdx;
+                      const isCurrent = idx === historyHead;
+                      const isFuture = idx > historyHead;
+                      return (
+                        <div
+                          key={entry.id}
+                          className={`relative flex items-start gap-2 py-2 pl-1 rounded-r-lg transition-colors ${
+                            isCurrent
+                              ? "bg-blue-500/5"
+                              : isFuture
+                              ? "opacity-40"
+                              : "hover:bg-slate-800/20"
+                          }`}
+                        >
+                          {/* Branch line connector */}
+                          <div className={`absolute -left-3 top-3 w-2.5 border-t ${
+                            isCurrent ? "border-blue-500/60" : "border-slate-800"
+                          }`} />
+
+                          {isCurrent ? (
+                            <CheckCircle size={12} className="text-blue-400 shrink-0 mt-0.5" />
+                          ) : (
+                            <GitCommit size={12} className="text-slate-600 shrink-0 mt-0.5" />
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <div className={`text-[11px] font-semibold truncate ${
+                              isCurrent ? "text-blue-300" : isFuture ? "text-slate-600" : "text-slate-400"
+                            }`}>
+                              {entry.label}
+                            </div>
+                            <div className="text-[9px] text-slate-600 font-mono">
+                              {entry.nodes.length} nodes · {timeAgo(entry.timestamp)}
+                            </div>
+                          </div>
+
+                          {isCurrent && (
+                            <span className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-bold shrink-0">
+                              HEAD
+                            </span>
+                          )}
+                          {isFuture && (
+                            <span className="text-[8px] bg-slate-800 text-slate-600 px-1.5 py-0.5 rounded font-bold shrink-0">
+                              REDO
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Keyboard shortcut hint */}
+                <div className="text-[9px] text-slate-700 text-center pb-1">
+                  ⌘/Ctrl+Z to undo · ⌘/Ctrl+Y to redo
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,0 +1,127 @@
+{
+  "cdn": {
+    "aws": "cloudfront",
+    "azure": "front_door",
+    "gcp": "cloud_cdn"
+  },
+  "load_balancer": {
+    "aws": "alb",
+    "azure": "application_gateway",
+    "gcp": "cloud_load_balancer"
+  },
+  "application": {
+    "aws": "ecs_fargate",
+    "azure": "app_service",
+    "gcp": "cloud_run"
+  },
+  "compute": {
+    "aws": "ecs_fargate",
+    "azure": "app_service",
+    "gcp": "cloud_run"
+  },
+  "functions": {
+    "aws": "lambda",
+    "azure": "functions",
+    "gcp": "cloud_functions"
+  },
+  "database": {
+    "aws": "aurora_postgresql",
+    "azure": "postgresql_flexible",
+    "gcp": "cloud_sql_postgresql"
+  },
+  "cache": {
+    "aws": "elasticache_redis",
+    "azure": "redis_cache",
+    "gcp": "memorystore_redis"
+  },
+  "storage": {
+    "aws": "s3",
+    "azure": "blob_storage",
+    "gcp": "cloud_storage"
+  },
+  "static_storage": {
+    "aws": "s3",
+    "azure": "blob_storage",
+    "gcp": "cloud_storage"
+  },
+  "monitoring": {
+    "aws": "cloudwatch",
+    "azure": "monitor",
+    "gcp": "cloud_monitoring"
+  },
+  "logging": {
+    "aws": "cloudwatch_logs",
+    "azure": "log_analytics",
+    "gcp": "cloud_logging"
+  },
+  "api_gateway": {
+    "aws": "api_gateway",
+    "azure": "api_management",
+    "gcp": "api_gateway"
+  },
+  "queue": {
+    "aws": "sqs",
+    "azure": "service_bus",
+    "gcp": "pub_sub"
+  },
+  "event_bus": {
+    "aws": "eventbridge",
+    "azure": "event_grid",
+    "gcp": "eventarc"
+  },
+  "stream_processor": {
+    "aws": "kinesis",
+    "azure": "event_hubs",
+    "gcp": "dataflow"
+  },
+  "search": {
+    "aws": "opensearch",
+    "azure": "cognitive_search",
+    "gcp": "discovery_engine"
+  },
+  "auth": {
+    "aws": "cognito",
+    "azure": "b2c",
+    "gcp": "identity_platform"
+  },
+  "ingestion": {
+    "aws": "media_convert",
+    "azure": "media_services",
+    "gcp": "transcoder"
+  },
+  "transcoder": {
+    "aws": "media_convert",
+    "azure": "media_services",
+    "gcp": "transcoder"
+  },
+  "data_ingestion": {
+    "aws": "glue",
+    "azure": "data_factory",
+    "gcp": "dataflow"
+  },
+  "data_storage": {
+    "aws": "s3",
+    "azure": "data_lake_gen2",
+    "gcp": "cloud_storage"
+  },
+  "data_processing": {
+    "aws": "emr",
+    "azure": "databricks",
+    "gcp": "dataproc"
+  },
+  "data_catalog": {
+    "aws": "glue_catalog",
+    "azure": "purview",
+    "gcp": "data_catalog"
+  },
+  "analytics": {
+    "aws": "athena",
+    "azure": "synapse",
+    "gcp": "bigquery"
+  },
+  "websocket_gateway": {
+    "aws": "api_gateway_websocket",
+    "azure": "web_pubsub",
+    "gcp": "cloud_run"
+  }
+}

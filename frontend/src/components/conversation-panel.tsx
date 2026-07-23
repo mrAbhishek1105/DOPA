@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, User, Cpu, CheckCircle2, FileText, Shield, Layers } from "lucide-react";
+import { Bot, User, Cpu, CheckCircle2, FileText, Shield, Layers, Send, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useConversation } from "@/hooks/use-conversation";
 import { useWorkspaceMode } from "@/hooks/use-workspace-mode";
@@ -18,14 +18,20 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState<"conversation" | "decisions" | "suggestions" | "changes">("conversation");
+  const [inputText, setInputText] = useState("");
 
-  const { messages, isPending } = useConversation(projectId);
+  const { messages, sendMessage, isPending, isComplete } = useConversation(projectId);
   const { mode } = useWorkspaceMode(projectId);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const el = scrollRef.current;
+      // Only auto-scroll if user is near the bottom (within 100px)
+      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+      if (isNearBottom) {
+        el.scrollTop = el.scrollHeight;
+      }
     }
   }, [messages]);
 
@@ -42,6 +48,20 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
     }, 1200);
     return () => clearInterval(interval);
   }, [isPending]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || isPending || isComplete) return;
+    sendMessage(inputText);
+    setInputText("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-950/60 rounded-2xl border border-slate-800/60 overflow-hidden shadow-xl">
@@ -84,16 +104,16 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden p-3 flex flex-col">
-        {activeTab === "conversation" && (
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+        {activeTab === "conversation" ? (
           <>
             {/* Architecture Status Strip */}
-            <div className="mb-3 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800/60 shadow-sm flex flex-col gap-1.5 shrink-0">
+            <div className="px-3 py-2 border-b border-slate-800/60 shrink-0">
               <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 <span>Architecture Status</span>
                 <span className="text-blue-400">{mode.replace("_", " ")}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-1">
                 <span className="text-xs text-slate-300">Requirements</span>
                 <span className="text-xs font-semibold text-emerald-400">2 / 8</span>
               </div>
@@ -103,7 +123,8 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
               </div>
             </div>
 
-            <ScrollArea className="flex-1 pr-2" ref={scrollRef}>
+            {/* Scrollable Messages Area */}
+            <div className="flex-1 overflow-y-auto p-3 custom-scrollbar" ref={scrollRef}>
               <div className="space-y-3 pb-2">
                 <AnimatePresence initial={false}>
                 {messages.map((msg) => (
@@ -193,42 +214,66 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
                 </motion.div>
               )}
             </div>
-          </ScrollArea>
-          </>
-        )}
-
-        {activeTab === "decisions" && (
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Architectural Decisions</h4>
-            <div className="space-y-1 text-slate-400 italic">No decisions logged yet.</div>
           </div>
-        )}
 
-        {activeTab === "suggestions" && (
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Context-Aware Suggestions</h4>
-            <div className="space-y-1 text-slate-400">
-              {(mode === "DISCOVERY" || mode === "ARCHITECTURE_SELECTION") ? (
-                <>
-                  <div>• Ask about compliance requirements</div>
-                  <div>• Ask about data storage needs</div>
-                  <div>• Ask about Disaster Recovery (DR)</div>
-                </>
-              ) : (
-                <>
-                  <div>• Replace ECS with Lambda for cost savings</div>
-                  <div>• Add WAF for improved security</div>
-                  <div>• Enable Multi-AZ on database</div>
-                </>
-              )}
+            {/* Input Box — fixed at bottom */}
+            <div className="shrink-0 border-t border-slate-800/60 bg-slate-950/80 p-3">
+              <form onSubmit={handleSubmit} className="flex items-end gap-2 bg-slate-900/60 border border-slate-700/60 rounded-xl p-1.5 focus-within:border-blue-500/50 transition-colors">
+                <textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={isPending || isComplete}
+                  placeholder={isComplete ? "Requirements complete — architecture locked." : "Type your request here..."}
+                  className="flex-1 max-h-[80px] min-h-[36px] resize-none bg-transparent px-3 py-2 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                  rows={1}
+                />
+                <button
+                  type="submit"
+                  disabled={!inputText.trim() || isPending || isComplete}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-all hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600"
+                >
+                  {isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                </button>
+              </form>
             </div>
-          </div>
-        )}
+          </>
+        ) : (
+          <div className="p-3 flex-1 overflow-y-auto">
+            {activeTab === "decisions" && (
+              <div className="bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs p-3">
+                <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Architectural Decisions</h4>
+                <div className="space-y-1 text-slate-400 italic">No decisions logged yet.</div>
+              </div>
+            )}
 
-        {activeTab === "changes" && (
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Change Log</h4>
-            <div className="space-y-1 text-slate-400 italic">No changes made.</div>
+            {activeTab === "suggestions" && (
+              <div className="bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs p-3">
+                <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Context-Aware Suggestions</h4>
+                <div className="space-y-1 text-slate-400">
+                  {(mode === "DISCOVERY" || mode === "ARCHITECTURE_SELECTION") ? (
+                    <>
+                      <div>• Ask about compliance requirements</div>
+                      <div>• Ask about data storage needs</div>
+                      <div>• Ask about Disaster Recovery (DR)</div>
+                    </>
+                  ) : (
+                    <>
+                      <div>• Replace ECS with Lambda for cost savings</div>
+                      <div>• Add WAF for improved security</div>
+                      <div>• Enable Multi-AZ on database</div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "changes" && (
+              <div className="bg-slate-900/60 rounded-xl border border-slate-800 space-y-3 text-xs p-3">
+                <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px]">Change Log</h4>
+                <div className="space-y-1 text-slate-400 italic">No changes made.</div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,0 +1,108 @@
+{
+  "budget": {
+    "low": {
+      "blocked_services": ["aurora_postgresql", "emr", "databricks", "dataproc", "opensearch", "discovery_engine", "media_convert", "media_services", "transcoder"],
+      "blocked_patterns": ["media_pipeline", "data_lake"],
+      "warnings": ["Low budget may limit high-availability configurations", "Consider serverless to reduce idle costs"],
+      "preferred_services": ["lambda", "cloud_functions", "functions", "sqs", "pub_sub", "service_bus"]
+    },
+    "medium": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": []
+    },
+    "high": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["High budget detected — consider enterprise-grade services for better SLAs"],
+      "preferred_services": ["aurora_postgresql", "emr", "databricks", "opensearch"]
+    }
+  },
+  "availability": {
+    "low": {
+      "blocked_services": ["aurora_postgresql"],
+      "blocked_patterns": [],
+      "warnings": ["Low availability may not meet production requirements", "Consider at least medium availability for user-facing apps"],
+      "preferred_services": []
+    },
+    "medium": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": []
+    },
+    "high": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": ["aurora_postgresql", "elasticache_redis", "redis_cache", "memorystore_redis"]
+    }
+  },
+  "compliance": {
+    "pci": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["PCI DSS compliance requires encryption at rest and in transit", "Ensure VPC isolation and strict network ACLs"],
+      "preferred_services": []
+    },
+    "hipaa": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["HIPAA compliance requires BAA with cloud provider", "Enable audit logging for all data access"],
+      "preferred_services": []
+    },
+    "sox": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["SOX compliance requires change management and audit trails"],
+      "preferred_services": []
+    },
+    "fedramp": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["FedRAMP compliance limits cloud provider selection", "Only use FedRAMP-authorized regions"],
+      "preferred_services": []
+    },
+    "standard": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": []
+    }
+  },
+  "traffic": {
+    "low": {
+      "blocked_services": ["kinesis", "event_hubs", "dataflow", "emr", "databricks", "dataproc"],
+      "blocked_patterns": ["media_pipeline", "data_lake"],
+      "warnings": [],
+      "preferred_services": []
+    },
+    "medium": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": []
+    },
+    "high": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["High traffic requires horizontal scaling and CDN", "Consider multi-region deployment for better latency"],
+      "preferred_services": ["cloudfront", "front_door", "cloud_cdn", "elasticache_redis", "redis_cache", "memorystore_redis"]
+    }
+  },
+  "realtime_latency": {
+    "true": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": ["Real-time requirements suggest event-driven architecture", "Consider WebSocket or server-sent events for live updates"],
+      "preferred_services": ["kinesis", "event_hubs", "dataflow", "api_gateway_websocket", "web_pubsub"]
+    },
+    "false": {
+      "blocked_services": [],
+      "blocked_patterns": [],
+      "warnings": [],
+      "preferred_services": []
+    }
+  }
+}

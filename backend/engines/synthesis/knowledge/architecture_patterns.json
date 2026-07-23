@@ -1,0 +1,93 @@
+{
+  "three_tier": {
+    "id": "three_tier",
+    "name": "Three Tier",
+    "description": "Classic web architecture with presentation, application, and data tiers. Best for request-response web applications.",
+    "supported_apps": ["ecommerce", "crm", "cms", "saas", "portal", "enterprise_app"],
+    "components": ["cdn", "load_balancer", "application", "cache", "database", "storage", "monitoring"],
+    "layers": ["presentation", "application", "data"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "horizontal",
+      "complexity": "medium"
+    }
+  },
+  "api_centric": {
+    "id": "api_centric",
+    "name": "API-Centric",
+    "description": "API-first architecture with API gateway, microservices, and managed data stores. Best for REST/GraphQL APIs.",
+    "supported_apps": ["api", "rest", "graphql", "microservice", "backend_service"],
+    "components": ["api_gateway", "compute", "database", "cache", "monitoring", "logging"],
+    "layers": ["gateway", "compute", "data"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "horizontal",
+      "complexity": "medium"
+    }
+  },
+  "event_driven": {
+    "id": "event_driven",
+    "name": "Event Driven",
+    "description": "Asynchronous event-driven architecture with message brokers and stream processors. Best for real-time and reactive systems.",
+    "supported_apps": ["chat", "iot", "realtime", "notification", "event_stream", "websocket"],
+    "components": ["event_bus", "stream_processor", "compute", "database", "cache", "monitoring"],
+    "layers": ["ingestion", "processing", "storage"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "horizontal",
+      "complexity": "high"
+    }
+  },
+  "media_pipeline": {
+    "id": "media_pipeline",
+    "name": "Media Pipeline",
+    "description": "Media ingestion, transcoding, and delivery pipeline. Best for video/audio streaming platforms.",
+    "supported_apps": ["streaming", "video", "media", "vod", "live_streaming"],
+    "components": ["cdn", "ingestion", "transcoder", "storage", "database", "monitoring"],
+    "layers": ["ingestion", "processing", "delivery", "storage"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "horizontal",
+      "complexity": "high"
+    }
+  },
+  "data_lake": {
+    "id": "data_lake",
+    "name": "Data Lake",
+    "description": "Scalable data lake for analytics, batch processing, and BI workloads.",
+    "supported_apps": ["analytics", "data_warehouse", "bi", "batch", "etl", "data_pipeline"],
+    "components": ["data_ingestion", "data_storage", "data_processing", "data_catalog", "analytics", "monitoring"],
+    "layers": ["ingestion", "storage", "processing", "analytics"],
+    "characteristics": {
+      "availability": "medium",
+      "scalability": "horizontal",
+      "complexity": "high"
+    }
+  },
+  "static_hosting": {
+    "id": "static_hosting",
+    "name": "Static Hosting + CDN",
+    "description": "Simple static site hosting with global CDN distribution. Best for static websites and SPAs.",
+    "supported_apps": ["static", "spa", "landing", "blog", "documentation"],
+    "components": ["cdn", "static_storage", "monitoring"],
+    "layers": ["delivery", "storage"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "global",
+      "complexity": "low"
+    }
+  },
+  "serverless": {
+    "id": "serverless",
+    "name": "Serverless",
+    "description": "Fully managed serverless architecture with functions, managed queues, and managed databases.",
+    "supported_apps": ["api", "microservice", "event_stream", "cron", "webhook"],
+    "components": ["api_gateway", "functions", "queue", "database", "cache", "monitoring"],
+    "layers": ["gateway", "compute", "data"],
+    "characteristics": {
+      "availability": "high",
+      "scalability": "auto",
+      "complexity": "low"
+    }
+  }
+}

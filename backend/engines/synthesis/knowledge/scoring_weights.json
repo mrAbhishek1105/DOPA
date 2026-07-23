@@ -1,0 +1,83 @@
+{
+  "dimensions": {
+    "availability": {
+      "weight": 0.30,
+      "description": "System uptime and fault tolerance capability",
+      "metrics": ["sla_percentage", "multi_az", "backup_config", "disaster_recovery"]
+    },
+    "cost": {
+      "weight": 0.20,
+      "description": "Total cost of ownership efficiency",
+      "metrics": ["service_cost_tier", "idle_cost", "data_transfer", "storage_cost"]
+    },
+    "security": {
+      "weight": 0.20,
+      "description": "Security posture and compliance alignment",
+      "metrics": ["encryption_at_rest", "encryption_in_transit", "iam_capabilities", "vpc_isolation"]
+    },
+    "operations": {
+      "weight": 0.15,
+      "description": "Operational excellence and manageability",
+      "metrics": ["managed_service", "auto_scaling", "monitoring_integration", "backup_managed"]
+    },
+    "performance": {
+      "weight": 0.15,
+      "description": "Performance efficiency and scalability",
+      "metrics": ["caching_support", "scaling_type", "global_reach", "compute_power"]
+    }
+  },
+  "scoring_rules": {
+    "service_cost_tier": {
+      "low": 95,
+      "medium": 75,
+      "high": 50
+    },
+    "sla_tier": {
+      "99.999": 100,
+      "99.99": 90,
+      "99.95": 80,
+      "99.9": 70,
+      "99.5": 50,
+      "99.0": 30
+    },
+    "managed_service": {
+      "fully_managed": 90,
+      "partially_managed": 70,
+      "self_managed": 40
+    },
+    "scaling_type": {
+      "auto": 95,
+      "horizontal": 85,
+      "vertical": 60,
+      "manual": 30
+    },
+    "cost_tier_score": {
+      "low": 90,
+      "medium": 70,
+      "high": 40
+    }
+  },
+  "option_profiles": {
+    "standard": {
+      "name": "Standard",
+      "description": "Balanced cost and availability. Recommended for most production workloads.",
+      "cost_multiplier": 1.0,
+      "availability_multiplier": 1.0,
+      "service_tier": "standard"
+    },
+    "cost_optimized": {
+      "name": "Cost Optimized",
+      "description": "Minimizes infrastructure cost while maintaining core functionality.",
+      "cost_multiplier": 1.2,
+      "availability_multiplier": 0.8,
+      "service_tier": "cost"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "Maximum availability and security for mission-critical workloads.",
+      "cost_multiplier": 0.8,
+      "availability_multiplier": 1.2,
+      "service_tier": "enterprise"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "ecommerce": {
+    "domain": "ecommerce",
+    "components": ["cdn", "load_balancer", "application", "database", "cache", "storage", "monitoring", "search"],
+    "description": "Standard e-commerce architecture components"
+  },
+  "saas": {
+    "domain": "saas",
+    "components": ["cdn", "load_balancer", "application", "database", "cache", "storage", "monitoring", "queue", "auth"],
+    "description": "Multi-tenant SaaS architecture components"
+  },
+  "crm": {
+    "domain": "crm",
+    "components": ["cdn", "load_balancer", "application", "database", "cache", "storage", "monitoring", "search"],
+    "description": "CRM application components"
+  },
+  "cms": {
+    "domain": "cms",
+    "components": ["cdn", "load_balancer", "application", "database", "cache", "storage", "monitoring"],
+    "description": "Content management system components"
+  },
+  "api": {
+    "domain": "api",
+    "components": ["api_gateway", "compute", "database", "cache", "monitoring", "logging"],
+    "description": "API service components"
+  },
+  "chat": {
+    "domain": "chat",
+    "components": ["event_bus", "compute", "database", "cache", "stream_processor", "monitoring", "websocket_gateway"],
+    "description": "Real-time chat application components"
+  },
+  "streaming": {
+    "domain": "streaming",
+    "components": ["cdn", "ingestion", "transcoder", "storage", "database", "monitoring", "queue"],
+    "description": "Video streaming platform components"
+  },
+  "analytics": {
+    "domain": "analytics",
+    "components": ["data_ingestion", "data_storage", "data_processing", "data_catalog", "analytics", "monitoring", "queue"],
+    "description": "Data analytics platform components"
+  },
+  "iot": {
+    "domain": "iot",
+    "components": ["event_bus", "stream_processor", "database", "compute", "monitoring", "queue"],
+    "description": "IoT platform components"
+  },
+  "static": {
+    "domain": "static",
+    "components": ["cdn", "static_storage", "monitoring"],
+    "description": "Static website components"
+  },
+  "generic": {
+    "domain": "generic",
+    "components": ["load_balancer", "application", "database", "storage", "monitoring"],
+    "description": "Generic web application components"
+  }
+}

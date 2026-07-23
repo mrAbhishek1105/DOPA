@@ -16,7 +16,7 @@ export function useWorkspaceMode(projectId?: string) {
     refetchInterval: 3000,
   });
 
-  const status = statusData?.status || "";
+  const status = (statusData?.status || "").toLowerCase();
 
   let mode: WorkspaceMode = "DISCOVERY";
 
@@ -29,6 +29,7 @@ export function useWorkspaceMode(projectId?: string) {
       mode = "ARCHITECTURE_SELECTION";
       break;
     case "graph_generated":
+    case "terraform_generating":
     case "analyzing":
     case "explaining":
       mode = "ARCHITECTURE_REVIEW";
@@ -36,6 +37,7 @@ export function useWorkspaceMode(projectId?: string) {
     case "completed":
       mode = "EXPORT";
       break;
+    case "failed":
     default:
       mode = "DISCOVERY";
   }
