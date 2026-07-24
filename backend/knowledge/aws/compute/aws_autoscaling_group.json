@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_autoscaling_group",
+  "display_name": "EC2 Auto Scaling Group",
+  "category": "compute",
+  "description": "Ensures you have the correct number of EC2 instances to handle the load for your application.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Group Details & Networking",
+      "description": "ASG naming and subnet placement",
+      "fields": [
+        {
+          "id": "asg_name",
+          "var_name": "name",
+          "label": "Auto Scaling Group Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-asg-group",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_autoscaling_group",
+            "argument": "name"
+          },
+          "why": "Logical identifier for the ASG.",
+          "impact": "Updates dynamically, but renaming recreates the resource.",
+          "learn_more": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html"
+        }
+      ]
+    },
+    {
+      "id": "scaling",
+      "title": "Capacity Limits",
+      "description": "Group size boundaries",
+      "fields": [
+        {
+          "id": "asg_min_size",
+          "var_name": "min_size",
+          "label": "Minimum Capacity",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 1,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_autoscaling_group",
+            "argument": "min_size"
+          },
+          "why": "Ensures the group never scales down below this threshold, maintaining a baseline of compute.",
+          "impact": "Setting to 0 allows the group to shut down completely when idle.",
+          "learn_more": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-capacity-limits.html"
+        },
+        {
+          "id": "asg_max_size",
+          "var_name": "max_size",
+          "label": "Maximum Capacity",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 3,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_autoscaling_group",
+            "argument": "max_size"
+          },
+          "why": "Sets a financial and capacity ceiling for scaling out.",
+          "impact": "If set too low, the application might crash under heavy load. If too high, it risks unchecked scaling costs.",
+          "learn_more": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-capacity-limits.html"
+        }
+      ]
+    }
+  ]
+}

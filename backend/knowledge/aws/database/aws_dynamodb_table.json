@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_dynamodb_table",
+  "display_name": "DynamoDB Table",
+  "category": "database",
+  "description": "Fully managed, serverless, NoSQL key-value database.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Table & Keys",
+      "description": "Table naming, primary key schema, and billing mode",
+      "fields": [
+        {
+          "id": "ddb_name",
+          "var_name": "name",
+          "label": "Table Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-data-table",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_dynamodb_table",
+            "argument": "name"
+          },
+          "why": "Identifies the DynamoDB table within your AWS account and region.",
+          "impact": "Changing the table name forces table recreation.",
+          "learn_more": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithTables.Basics.html"
+        },
+        {
+          "id": "ddb_billing_mode",
+          "var_name": "billing_mode",
+          "label": "Billing Mode",
+          "ui_component": "select",
+          "options": [
+            { "label": "PAY_PER_REQUEST (On-Demand)", "value": "PAY_PER_REQUEST" },
+            { "label": "PROVISIONED (Fixed Capacity)", "value": "PROVISIONED" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "PAY_PER_REQUEST",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "PAY_PER_REQUEST",
+            "production": "PAY_PER_REQUEST"
+          },
+          "terraform": {
+            "resource": "aws_dynamodb_table",
+            "argument": "billing_mode"
+          },
+          "why": "On-Demand is best for unpredictable workloads and dev. Provisioned is cheaper for highly predictable, consistent traffic.",
+          "impact": "Can be switched once every 24 hours without downtime.",
+          "learn_more": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html"
+        },
+        {
+          "id": "ddb_hash_key",
+          "var_name": "hash_key",
+          "label": "Partition Key (Hash Key)",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "id",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_dynamodb_table",
+            "argument": "hash_key"
+          },
+          "why": "Primary key used to distribute data evenly across underlying storage partitions.",
+          "impact": "Cannot be changed after table creation. Requires a new table and data migration to modify.",
+          "learn_more": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.PrimaryKey"
+        }
+      ]
+    }
+  ]
+}

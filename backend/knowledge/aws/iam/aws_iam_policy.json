@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_iam_policy",
+  "display_name": "IAM Policy",
+  "category": "iam",
+  "description": "Granular document defining allowed or denied actions across AWS service resources.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Policy Document",
+      "description": "Policy metadata and JSON statement block",
+      "fields": [
+        {
+          "id": "iam_policy_name",
+          "var_name": "policy_name",
+          "label": "Policy Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "dopa-app-policy",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9+=,.@-]{1,128}$",
+            "error_message": "1 to 128 characters. Alphanumeric and +=,.@- allowed."
+          },
+          "terraform": {
+            "resource": "aws_iam_policy",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the customer managed policy.",
+          "impact": "Changing policy name forces creation of a new policy resource.",
+          "learn_more": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+        },
+        {
+          "id": "iam_policy_json",
+          "var_name": "policy",
+          "label": "Policy Document (JSON)",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": []\n}",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_iam_policy",
+            "argument": "policy"
+          },
+          "why": "Contains statements defining explicit Allow/Deny actions, resources, and conditions.",
+          "impact": "Updates dynamically in-place as new policy versions.",
+          "learn_more": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_management.html"
+        }
+      ]
+    }
+  ]
+}

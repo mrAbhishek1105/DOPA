@@ -1,0 +1,381 @@
+{
+  "schema_version": "2.0.0",
+  "resource_type": "aws_lb",
+  "display_name": "Application Load Balancer (ALB)",
+  "category": "networking",
+  "description": "Layer-7 HTTP/HTTPS load balancer distributing incoming application traffic across target instances or containers.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "General & Identity",
+      "description": "Naming, scheme, and deletion safety",
+      "fields": [
+        {
+          "id": "alb_name",
+          "var_name": "name",
+          "label": "Load Balancer Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "app-alb-ingress",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9-]{1,32}$",
+            "error_message": "1 to 32 alphanumeric characters and hyphens allowed."
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "name"
+          },
+          "why": "Human-readable name used to construct the AWS generated DNS identifier.",
+          "impact": "Renaming forces destruction and replacement of the load balancer.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html"
+        },
+        {
+          "id": "alb_internal",
+          "var_name": "internal",
+          "label": "Scheme (Internal vs Internet-Facing)",
+          "ui_component": "select",
+          "options": [
+            { "label": "Internet-Facing (Public Access)", "value": false },
+            { "label": "Internal (VPC Only)", "value": true }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": false,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "internal"
+          },
+          "why": "Controls whether the ALB receives a public DNS address or stays isolated within internal VPC subnets.",
+          "impact": "Internal load balancers cannot accept incoming traffic directly from public internet clients.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html#load-balancer-scheme"
+        },
+        {
+          "id": "alb_deletion_protection",
+          "var_name": "enable_deletion_protection",
+          "label": "Enable Deletion Protection",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "enable_deletion_protection"
+          },
+          "why": "Prevents accidental deletion of production load balancers via Terraform destroy commands or AWS console.",
+          "impact": "Must be disabled before terraform destroy can remove the resource.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#deletion-protection"
+        },
+        {
+          "id": "alb_idle_timeout",
+          "var_name": "idle_timeout",
+          "label": "Idle Timeout (Seconds)",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 60,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "idle_timeout"
+          },
+          "why": "The time in seconds that the connection is allowed to remain idle before the ALB closes it.",
+          "impact": "Increase for long-polling API routes or file upload operations.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout"
+        }
+      ]
+    },
+    {
+      "id": "listeners_security",
+      "title": "Listeners & SSL Security",
+      "description": "HTTP/HTTPS ports and SSL certificate bindings",
+      "fields": [
+        {
+          "id": "alb_http_port",
+          "var_name": "http_port",
+          "label": "HTTP Ingress Port",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 80,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "port"
+          },
+          "why": "Unencrypted web listener port exposed on the load balancer.",
+          "impact": "Used to accept HTTP connections and trigger 301 redirects to HTTPS.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+        },
+        {
+          "id": "alb_https_port",
+          "var_name": "https_port",
+          "label": "HTTPS Ingress Port",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 443,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "port"
+          },
+          "why": "Encrypted web listener port exposed for secure client traffic.",
+          "impact": "Requires a valid ACM SSL Certificate ARN.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html"
+        },
+        {
+          "id": "alb_certificate_arn",
+          "var_name": "certificate_arn",
+          "label": "ACM SSL Certificate ARN",
+          "ui_component": "certificate",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "arn:aws:acm:us-east-1:123456789012:certificate/domain-cert-id",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "certificate_arn"
+          },
+          "why": "AWS Certificate Manager (ACM) SSL certificate used for terminating HTTPS traffic at the edge.",
+          "impact": "Mandatory for HTTPS listeners.",
+          "learn_more": "https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+        },
+        {
+          "id": "alb_ssl_policy",
+          "var_name": "ssl_policy",
+          "label": "SSL Security Policy",
+          "ui_component": "select",
+          "options": [
+            { "label": "ELBSecurityPolicy-TLS13-1-2-2021-06 (Modern TLS 1.2/1.3)", "value": "ELBSecurityPolicy-TLS13-1-2-2021-06" },
+            { "label": "ELBSecurityPolicy-2016-08 (Legacy Compatibility)", "value": "ELBSecurityPolicy-2016-08" }
+          ],
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "ELBSecurityPolicy-TLS13-1-2-2021-06",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "ssl_policy"
+          },
+          "why": "Enforces modern TLS 1.2 and 1.3 cryptographic ciphers, disabling weak legacy TLS 1.0/1.1 protocols.",
+          "impact": "Improves security posture and meets SOC2 / PCI-DSS compliance requirements.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies"
+        }
+      ]
+    },
+    {
+      "id": "health_checks",
+      "title": "Health Checks & Target Routing",
+      "description": "Backend target evaluation and health criteria",
+      "fields": [
+        {
+          "id": "alb_health_check_path",
+          "var_name": "health_check_path",
+          "label": "Health Check Path",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "/healthz",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "health_check.path"
+          },
+          "why": "Destination HTTP path pinged by ALB nodes to evaluate target health.",
+          "impact": "Backend applications must return HTTP 200 OK on this route.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+        },
+        {
+          "id": "alb_healthy_threshold",
+          "var_name": "healthy_threshold",
+          "label": "Healthy Threshold Count",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 2,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "health_check.healthy_threshold"
+          },
+          "why": "Number of consecutive successful health checks required before considering an unhealthy target healthy again.",
+          "impact": "Lower values allow faster target recovery into the active pool.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+        },
+        {
+          "id": "alb_unhealthy_threshold",
+          "var_name": "unhealthy_threshold",
+          "label": "Unhealthy Threshold Count",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 3,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "health_check.unhealthy_threshold"
+          },
+          "why": "Number of consecutive failed health checks required before considering a target unhealthy.",
+          "impact": "Isolates failing instances/containers automatically from receiving user traffic.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+        }
+      ]
+    },
+    {
+      "id": "advanced_tuning",
+      "title": "Advanced Operational Tuning",
+      "description": "Network optimization, security hardening, and log routing",
+      "fields": [
+        {
+          "id": "alb_cross_zone",
+          "var_name": "enable_cross_zone_load_balancing",
+          "label": "Cross-Zone Load Balancing",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "operational_frequency": "medium",
+          "default": {
+            "value": true,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "enable_cross_zone_load_balancing"
+          },
+          "why": "Distributes incoming traffic evenly across targets in all enabled Availability Zones.",
+          "impact": "Reduces traffic imbalance across AZs.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html#cross-zone-load-balancing"
+        },
+        {
+          "id": "alb_drop_invalid_headers",
+          "var_name": "drop_invalid_header_fields",
+          "label": "Drop Invalid Header Fields",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "operational_frequency": "medium",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "drop_invalid_header_fields"
+          },
+          "why": "Removes HTTP header fields that do not conform to RFC specifications prior to routing.",
+          "impact": "Protects backend web servers against HTTP header smuggling vulnerabilities.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#drop-invalid-headers"
+        },
+        {
+          "id": "alb_http2",
+          "var_name": "enable_http2",
+          "label": "Enable HTTP/2 Protocol",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "operational_frequency": "medium",
+          "default": {
+            "value": true,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "enable_http2"
+          },
+          "why": "Enables HTTP/2 protocol multiplexing for web clients.",
+          "impact": "Improves web application page load speed for modern web browsers.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#http2-support"
+        },
+        {
+          "id": "alb_waf_acl",
+          "var_name": "web_acl_arn",
+          "label": "AWS WAF Web ACL Binding",
+          "ui_component": "arn",
+          "importance": "optional",
+          "visibility": "advanced",
+          "operational_frequency": "medium",
+          "default": {
+            "value": "",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_wafv2_web_acl_association",
+            "argument": "web_acl_arn"
+          },
+          "why": "Attaches an AWS WAF Web ACL to inspect and block OWASP Top 10 web vulnerabilities at the load balancer.",
+          "impact": "Provides Layer-7 firewall filtering.",
+          "learn_more": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-associations.html"
+        }
+      ]
+    },
+    {
+      "id": "expert_tuning",
+      "title": "Expert Settings",
+      "description": "Low-level protocol parsing modes",
+      "fields": [
+        {
+          "id": "alb_desync_mitigation_mode",
+          "var_name": "desync_mitigation_mode",
+          "label": "Desync Mitigation Mode",
+          "ui_component": "select",
+          "options": [
+            { "label": "Defensive (Strict Compliance)", "value": "defensive" },
+            { "label": "Strictest (Drop Suspicious)", "value": "strictest" },
+            { "label": "Monitor (Log Only)", "value": "monitor" }
+          ],
+          "importance": "optional",
+          "visibility": "expert",
+          "operational_frequency": "low",
+          "default": {
+            "value": "defensive",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb",
+            "argument": "desync_mitigation_mode"
+          },
+          "why": "Determines how the load balancer handles HTTP desync risks caused by non-conforming HTTP requests.",
+          "impact": "Protects against HTTP request smuggling attacks.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#desync-mitigation-mode"
+        }
+      ]
+    }
+  ]
+}

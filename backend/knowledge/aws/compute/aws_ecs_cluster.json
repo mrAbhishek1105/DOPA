@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_ecs_cluster",
+  "display_name": "ECS Cluster",
+  "category": "compute",
+  "description": "Logical grouping of tasks or services.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Cluster Settings",
+      "description": "Cluster identity and observability",
+      "fields": [
+        {
+          "id": "ecs_cluster_name",
+          "var_name": "name",
+          "label": "Cluster Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-ecs-cluster",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9_-]{1,255}$",
+            "error_message": "1 to 255 letters, numbers, hyphens, and underscores."
+          },
+          "terraform": {
+            "resource": "aws_ecs_cluster",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the cluster. Services are deployed into this cluster.",
+          "impact": "Renaming forces replacement.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/clusters.html"
+        },
+        {
+          "id": "ecs_container_insights",
+          "var_name": "container_insights",
+          "label": "Enable CloudWatch Container Insights",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": false,
+            "production": true
+          },
+          "terraform": {
+            "resource": "aws_ecs_cluster",
+            "argument": "setting.value"
+          },
+          "why": "Automatically collects, aggregates, and summarizes metrics and logs from containerized applications.",
+          "impact": "Generates additional CloudWatch custom metric charges, but is essential for production troubleshooting.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html"
+        }
+      ]
+    }
+  ]
+}

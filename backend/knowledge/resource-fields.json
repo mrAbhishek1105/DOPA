@@ -1,0 +1,273 @@
+{
+  "aws": {
+    "ecs_fargate": {
+      "display_name": "ECS Fargate Container Task",
+      "terraform_resource": "aws_ecs_task_definition",
+      "fields": [
+        {
+          "name": "cpu",
+          "terraform_key": "cpu",
+          "default": 512,
+          "recommended": 1024,
+          "type": "select",
+          "options": ["256", "512", "1024", "2048", "4096"],
+          "category": "Compute & Memory",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 1,
+          "description": "vCPU units allocated to the container task (1024 = 1 vCPU)."
+        },
+        {
+          "name": "memory",
+          "terraform_key": "memory",
+          "default": 1024,
+          "recommended": 2048,
+          "type": "select",
+          "options": ["512", "1024", "2048", "4096", "8192", "16384"],
+          "category": "Compute & Memory",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 2,
+          "description": "Amount of RAM allocated to the task in MB."
+        },
+        {
+          "name": "container_port",
+          "terraform_key": "container_port",
+          "default": 8080,
+          "recommended": 8080,
+          "type": "number",
+          "category": "Networking",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 3,
+          "description": "Port exposed by the primary container application."
+        },
+        {
+          "name": "desired_count",
+          "terraform_key": "desired_count",
+          "default": 1,
+          "recommended": 2,
+          "type": "number",
+          "category": "Scaling",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 4,
+          "description": "Initial number of task instances to run in parallel."
+        },
+        {
+          "name": "assign_public_ip",
+          "terraform_key": "assign_public_ip",
+          "default": false,
+          "recommended": false,
+          "type": "switch",
+          "category": "Networking",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 5,
+          "description": "Assign public IP address to task network interface."
+        }
+      ]
+    },
+    "rds_postgres": {
+      "display_name": "RDS PostgreSQL Database",
+      "terraform_resource": "aws_db_instance",
+      "fields": [
+        {
+          "name": "instance_class",
+          "terraform_key": "instance_class",
+          "default": "db.t4g.micro",
+          "recommended": "db.t4g.medium",
+          "type": "select",
+          "options": ["db.t4g.micro", "db.t4g.small", "db.t4g.medium", "db.r6g.large", "db.r6g.xlarge"],
+          "category": "Instance Hardware",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 1,
+          "description": "Database server instance hardware specification."
+        },
+        {
+          "name": "allocated_storage",
+          "terraform_key": "allocated_storage",
+          "default": 20,
+          "recommended": 100,
+          "type": "number",
+          "category": "Storage",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 2,
+          "description": "Allocated GP3 storage capacity in GB."
+        },
+        {
+          "name": "multi_az",
+          "terraform_key": "multi_az",
+          "default": false,
+          "recommended": true,
+          "type": "switch",
+          "category": "High Availability",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 3,
+          "description": "Deploy redundant standby instance in secondary availability zone."
+        },
+        {
+          "name": "database_name",
+          "terraform_key": "db_name",
+          "default": "dopa_db",
+          "recommended": "app_db",
+          "type": "text",
+          "category": "Database Config",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 4,
+          "description": "Name of initial database created on instance startup."
+        },
+        {
+          "name": "backup_retention_period",
+          "terraform_key": "backup_retention_period",
+          "default": 7,
+          "recommended": 30,
+          "type": "number",
+          "category": "Backups",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 5,
+          "description": "Days to retain automated point-in-time snapshot backups."
+        }
+      ]
+    },
+    "elasticache_redis": {
+      "display_name": "ElastiCache Redis Cluster",
+      "terraform_resource": "aws_elasticache_replication_group",
+      "fields": [
+        {
+          "name": "node_type",
+          "terraform_key": "node_type",
+          "default": "cache.t4g.micro",
+          "recommended": "cache.t4g.medium",
+          "type": "select",
+          "options": ["cache.t4g.micro", "cache.t4g.small", "cache.t4g.medium", "cache.m6g.large"],
+          "category": "Node Hardware",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 1,
+          "description": "Cache node instance type and memory allocation."
+        },
+        {
+          "name": "num_cache_clusters",
+          "terraform_key": "num_cache_clusters",
+          "default": 1,
+          "recommended": 2,
+          "type": "number",
+          "category": "Replication",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 2,
+          "description": "Total number of cache nodes in replication group."
+        },
+        {
+          "name": "automatic_failover_enabled",
+          "terraform_key": "automatic_failover_enabled",
+          "default": false,
+          "recommended": true,
+          "type": "switch",
+          "category": "High Availability",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 3,
+          "description": "Automatic 60-second DNS failover to read replica during primary failure."
+        }
+      ]
+    },
+    "alb": {
+      "display_name": "Application Load Balancer",
+      "terraform_resource": "aws_lb",
+      "fields": [
+        {
+          "name": "enable_deletion_protection",
+          "terraform_key": "enable_deletion_protection",
+          "default": false,
+          "recommended": true,
+          "type": "switch",
+          "category": "Security & Protection",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 1,
+          "description": "Prevent accidental load balancer termination via AWS API or console."
+        },
+        {
+          "name": "enable_https",
+          "terraform_key": "enable_https",
+          "default": true,
+          "recommended": true,
+          "type": "switch",
+          "category": "TLS & Certificates",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 2,
+          "description": "Terminate TLS traffic on port 443 with ACM certificate."
+        },
+        {
+          "name": "certificate_arn",
+          "terraform_key": "certificate_arn",
+          "default": "",
+          "recommended": "arn:aws:acm:us-east-1:123456789012:certificate/example",
+          "type": "text",
+          "category": "TLS & Certificates",
+          "required": false,
+          "editable": true,
+          "computed": false,
+          "display_order": 3,
+          "description": "AWS ACM Certificate ARN for SSL/TLS listener (Required if HTTPS enabled)."
+        }
+      ]
+    },
+    "cloudfront": {
+      "display_name": "CloudFront CDN Distribution",
+      "terraform_resource": "aws_cloudfront_distribution",
+      "fields": [
+        {
+          "name": "price_class",
+          "terraform_key": "price_class",
+          "default": "PriceClass_100",
+          "recommended": "PriceClass_All",
+          "type": "select",
+          "options": ["PriceClass_100", "PriceClass_200", "PriceClass_All"],
+          "category": "Global Distribution",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 1,
+          "description": "Edge locations enabled for caching (PriceClass_All = 400+ worldwide PoPs)."
+        },
+        {
+          "name": "default_ttl",
+          "terraform_key": "default_ttl",
+          "default": 86400,
+          "recommended": 86400,
+          "type": "number",
+          "category": "Caching Policy",
+          "required": true,
+          "editable": true,
+          "computed": false,
+          "display_order": 2,
+          "description": "Default Time-To-Live in seconds for cached assets (86400 = 24 hours)."
+        }
+      ]
+    }
+  }
+}

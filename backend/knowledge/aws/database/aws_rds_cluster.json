@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_rds_cluster",
+  "display_name": "Amazon Aurora Cluster",
+  "category": "database",
+  "description": "High-performance, scalable cloud-native relational database cluster.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Cluster Definition",
+      "description": "Aurora engine and primary credentials",
+      "fields": [
+        {
+          "id": "aurora_cluster_identifier",
+          "var_name": "cluster_identifier",
+          "label": "Cluster Identifier",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "aurora-db-cluster",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_rds_cluster",
+            "argument": "cluster_identifier"
+          },
+          "why": "Globally uniquely identifies the Aurora Cluster within the AWS account.",
+          "impact": "Changing this destroys and recreates the cluster.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.html"
+        },
+        {
+          "id": "aurora_engine",
+          "var_name": "engine",
+          "label": "Aurora Engine",
+          "ui_component": "select",
+          "options": [
+            { "label": "Aurora PostgreSQL", "value": "aurora-postgresql" },
+            { "label": "Aurora MySQL", "value": "aurora-mysql" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "aurora-postgresql",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_rds_cluster",
+            "argument": "engine"
+          },
+          "why": "Determines the wire-protocol compatibility for your applications.",
+          "impact": "Forces resource replacement. Cannot be changed after creation.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html"
+        },
+        {
+          "id": "aurora_storage_encrypted",
+          "var_name": "storage_encrypted",
+          "label": "Enable Storage Encryption",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": true,
+            "production": true
+          },
+          "terraform": {
+            "resource": "aws_rds_cluster",
+            "argument": "storage_encrypted"
+          },
+          "why": "Encrypts the underlying shared cluster volume at rest.",
+          "impact": "Must be set upon creation. Cannot encrypt an unencrypted cluster later without migrating data via snapshot.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Overview.Encryption.html"
+        }
+      ]
+    }
+  ]
+}

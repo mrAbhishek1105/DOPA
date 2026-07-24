@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_acm_certificate",
+  "display_name": "ACM Certificate",
+  "category": "security",
+  "description": "Provisions and manages SSL/TLS certificates for encrypted HTTPS communications.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Domain & Validation",
+      "description": "Target domain and ownership validation method",
+      "fields": [
+        {
+          "id": "acm_domain_name",
+          "var_name": "domain_name",
+          "label": "Fully Qualified Domain Name (FQDN)",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "validation": {
+            "regex": "^(\\*\\.)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$",
+            "error_message": "Must be a valid domain name (e.g., example.com or *.example.com)."
+          },
+          "terraform": {
+            "resource": "aws_acm_certificate",
+            "argument": "domain_name"
+          },
+          "why": "Primary domain name secured by this SSL certificate.",
+          "impact": "Recreates the certificate request if changed.",
+          "learn_more": "https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html"
+        },
+        {
+          "id": "acm_validation_method",
+          "var_name": "validation_method",
+          "label": "Validation Method",
+          "ui_component": "select",
+          "options": [
+            { "label": "DNS Validation (Automated via Route 53)", "value": "DNS" },
+            { "label": "Email Validation (Manual Approver Email)", "value": "EMAIL" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "DNS",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "DNS",
+            "production": "DNS"
+          },
+          "terraform": {
+            "resource": "aws_acm_certificate",
+            "argument": "validation_method"
+          },
+          "why": "DNS validation enables automated certificate renewals prior to expiration.",
+          "impact": "DNS validation requires adding CNAME records to the domain's DNS zone.",
+          "learn_more": "https://docs.aws.amazon.com/acm/latest/userguide/concept-certificate-validation.html"
+        }
+      ]
+    }
+  ]
+}

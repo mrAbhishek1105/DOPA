@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_instance",
+  "display_name": "Amazon EC2 Instance",
+  "category": "compute",
+  "description": "Virtual server in the cloud for running application workloads.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "General Settings",
+      "description": "Core identity, AMI, and instance size configuration",
+      "fields": [
+        {
+          "id": "ec2_instance_type",
+          "var_name": "instance_type",
+          "label": "Instance Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "t3.micro (2 vCPU, 1 GiB RAM - General Purpose)", "value": "t3.micro" },
+            { "label": "t3.small (2 vCPU, 2 GiB RAM - General Purpose)", "value": "t3.small" },
+            { "label": "t3.medium (2 vCPU, 4 GiB RAM - General Purpose)", "value": "t3.medium" },
+            { "label": "m6i.large (2 vCPU, 8 GiB RAM - Production General)", "value": "m6i.large" },
+            { "label": "c6i.large (2 vCPU, 4 GiB RAM - Compute Optimized)", "value": "c6i.large" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "t3.micro",
+            "source": "aws"
+          },
+          "recommended": {
+            "development": "t3.micro",
+            "production": "m6i.large"
+          },
+          "terraform": {
+            "resource": "aws_instance",
+            "argument": "instance_type"
+          },
+          "why": "Determines the CPU, memory, storage, and networking capacity of your virtual server.",
+          "impact": "Changing instance type requires an instance stop and start cycle, causing brief downtime.",
+          "learn_more": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html"
+        },
+        {
+          "id": "ec2_ami_id",
+          "var_name": "ami_id",
+          "label": "Amazon Machine Image (AMI) ID",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "ami-0c55b159cbfafe1f0",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "ami-0c55b159cbfafe1f0",
+            "production": "ami-0c55b159cbfafe1f0"
+          },
+          "validation": {
+            "regex": "^ami-[a-f0-9]{8,17}$",
+            "error_message": "Must be a valid AMI ID starting with 'ami-' followed by hex characters."
+          },
+          "terraform": {
+            "resource": "aws_instance",
+            "argument": "ami"
+          },
+          "why": "Provides the OS, application server, and applications required to launch your instance.",
+          "impact": "Changing the AMI forces replacement (destruction and re-creation) of the EC2 instance.",
+          "learn_more": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+        }
+      ]
+    },
+    {
+      "id": "networking",
+      "title": "Network & Security",
+      "description": "VPC Placement, IP addressing, and security groups",
+      "fields": [
+        {
+          "id": "ec2_associate_public_ip",
+          "var_name": "associate_public_ip_address",
+          "label": "Auto-assign Public IP",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "basic",
+          "default": {
+            "value": false,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": true,
+            "production": false
+          },
+          "terraform": {
+            "resource": "aws_instance",
+            "argument": "associate_public_ip_address"
+          },
+          "why": "Assigns a publicly routable IPv4 address directly to the instance's network interface.",
+          "impact": "Exposing instances directly to public IPs increases network attack surface. Private subnets with NAT gateways are preferred for production.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_elasticache_replication_group",
+  "display_name": "ElastiCache Redis Replication Group",
+  "category": "database",
+  "description": "In-memory data store and cache environment for Redis.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Redis Configuration",
+      "description": "Cluster identity, node sizing, and topology",
+      "fields": [
+        {
+          "id": "redis_replication_group_id",
+          "var_name": "replication_group_id",
+          "label": "Replication Group ID",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "redis-cluster",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-z][a-z0-9-]{1,19}$",
+            "error_message": "1 to 20 lowercase letters, numbers, or hyphens."
+          },
+          "terraform": {
+            "resource": "aws_elasticache_replication_group",
+            "argument": "replication_group_id"
+          },
+          "why": "Unique identifier for the Redis cluster.",
+          "impact": "Renaming forces destruction and recreation of the entire cache cluster.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Clusters.Create.html"
+        },
+        {
+          "id": "redis_node_type",
+          "var_name": "node_type",
+          "label": "Node Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "cache.t4g.micro (0.5GB - Dev)", "value": "cache.t4g.micro" },
+            { "label": "cache.m6g.large (6.38GB - Prod)", "value": "cache.m6g.large" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "cache.t4g.micro",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_elasticache_replication_group",
+            "argument": "node_type"
+          },
+          "why": "Determines RAM availability. Redis operates entirely in memory, so dataset size dictates node size.",
+          "impact": "Scaling nodes requires synchronization and brief application disconnects.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/CacheNodes.SupportedTypes.html"
+        },
+        {
+          "id": "redis_num_cache_clusters",
+          "var_name": "num_cache_clusters",
+          "label": "Number of Nodes (Primary + Replicas)",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 2,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": 1,
+            "production": 3
+          },
+          "terraform": {
+            "resource": "aws_elasticache_replication_group",
+            "argument": "num_cache_clusters"
+          },
+          "why": "Defines high availability. 1 node means no failover. 2+ provides automatic failover to read replicas.",
+          "impact": "Increasing nodes increases read capacity and availability, but multiplies hourly costs.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Replication.html"
+        }
+      ]
+    }
+  ]
+}

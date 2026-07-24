@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_cloudwatch_log_group",
+  "display_name": "CloudWatch Log Group",
+  "category": "observability",
+  "description": "A centralized container for collecting, retaining, and monitoring application and infrastructure logs.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Log Storage",
+      "description": "Naming and retention policies",
+      "fields": [
+        {
+          "id": "cw_log_group_name",
+          "var_name": "name",
+          "label": "Log Group Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "/aws/dopa/application-logs",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[\\.\\-_/#A-Za-z0-9]{1,512}$",
+            "error_message": "Up to 512 characters. Alphanumeric, slash, hyphen, underscore, and period allowed."
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_log_group",
+            "argument": "name"
+          },
+          "why": "Identifies the log group path. Many services (like Lambda) auto-create this if named /aws/lambda/function_name.",
+          "impact": "Changing the name recreates the log group; old logs remain in the previous orphaned group.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html"
+        },
+        {
+          "id": "cw_retention_in_days",
+          "var_name": "retention_in_days",
+          "label": "Retention Period (Days)",
+          "ui_component": "select",
+          "options": [
+            { "label": "Never Expire", "value": 0 },
+            { "label": "7 Days", "value": 7 },
+            { "label": "14 Days", "value": 14 },
+            { "label": "30 Days", "value": 30 },
+            { "label": "90 Days", "value": 90 },
+            { "label": "365 Days", "value": 365 }
+          ],
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": 30,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": 7,
+            "production": 90
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_log_group",
+            "argument": "retention_in_days"
+          },
+          "why": "Determines when older log events are automatically deleted.",
+          "impact": "Setting to 'Never Expire' can result in infinitely growing CloudWatch storage costs.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html#SettingLogRetention"
+        }
+      ]
+    }
+  ]
+}

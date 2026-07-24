@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_cloudfront_distribution",
+  "display_name": "CloudFront Distribution",
+  "category": "networking",
+  "description": "Global Content Delivery Network (CDN) for securely accelerating static and dynamic web content.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Distribution Settings",
+      "description": "State, pricing class, and custom domains",
+      "fields": [
+        {
+          "id": "cf_enabled",
+          "var_name": "enabled",
+          "label": "Enable Distribution",
+          "ui_component": "switch",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_cloudfront_distribution",
+            "argument": "enabled"
+          },
+          "why": "Determines whether CloudFront accepts and processes web requests for this distribution.",
+          "impact": "Disabling effectively takes your CDN offline without destroying the configuration.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesEnabled"
+        },
+        {
+          "id": "cf_price_class",
+          "var_name": "price_class",
+          "label": "Price Class",
+          "ui_component": "select",
+          "options": [
+            { "label": "PriceClass_100 (US, Canada, Europe)", "value": "PriceClass_100" },
+            { "label": "PriceClass_200 (+ Asia, Middle East, Africa)", "value": "PriceClass_200" },
+            { "label": "PriceClass_All (Global Edge Network)", "value": "PriceClass_All" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "PriceClass_100",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudfront_distribution",
+            "argument": "price_class"
+          },
+          "why": "Controls which global edge locations serve your content, optimizing for cost vs global latency.",
+          "impact": "Higher price classes decrease latency for global users but incur higher data transfer out (DTO) charges.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html"
+        }
+      ]
+    },
+    {
+      "id": "default_cache_behavior",
+      "title": "Default Cache Behavior",
+      "description": "Routing and protocol enforcement",
+      "fields": [
+        {
+          "id": "cf_viewer_protocol_policy",
+          "var_name": "viewer_protocol_policy",
+          "label": "Viewer Protocol Policy",
+          "ui_component": "select",
+          "options": [
+            { "label": "Allow HTTP and HTTPS", "value": "allow-all" },
+            { "label": "Redirect HTTP to HTTPS", "value": "redirect-to-https" },
+            { "label": "HTTPS Only", "value": "https-only" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "redirect-to-https",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "redirect-to-https",
+            "production": "redirect-to-https"
+          },
+          "terraform": {
+            "resource": "aws_cloudfront_distribution",
+            "argument": "default_cache_behavior.viewer_protocol_policy"
+          },
+          "why": "Enforces secure connections between viewers (browsers) and the CDN edge node.",
+          "impact": "Redirecting forces a 301 upgrade to HTTPS, ensuring SEO integrity and transit security.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesViewerProtocolPolicy"
+        }
+      ]
+    }
+  ]
+}

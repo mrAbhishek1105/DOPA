@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_internet_gateway",
+  "display_name": "Internet Gateway (IGW)",
+  "category": "networking",
+  "description": "VPC edge router providing direct bi-directional connectivity between the VPC and public internet.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "VPC Association",
+      "description": "Attachment settings for target VPC",
+      "fields": [
+        {
+          "id": "igw_vpc_id",
+          "var_name": "vpc_id",
+          "label": "Target VPC ID",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "terraform": {
+            "resource": "aws_internet_gateway",
+            "argument": "vpc_id"
+          },
+          "why": "Attaches this IGW component to the VPC edge router.",
+          "impact": "Detaching or replacing an IGW immediately drops all inbound and outbound public traffic for the VPC.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+        }
+      ]
+    }
+  ]
+}

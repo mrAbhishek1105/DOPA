@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_sns_topic",
+  "display_name": "SNS Topic",
+  "category": "messaging",
+  "description": "Managed Pub/Sub messaging service for fan-out architectures and notification delivery.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Topic Settings",
+      "description": "Topic naming and type",
+      "fields": [
+        {
+          "id": "sns_name",
+          "var_name": "name",
+          "label": "Topic Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-event-notifications",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_sns_topic",
+            "argument": "name"
+          },
+          "why": "The logical name used to publish messages and subscribe endpoints (SQS, Lambda, Email).",
+          "impact": "Changing the name replaces the topic, destroying all active subscriptions.",
+          "learn_more": "https://docs.aws.amazon.com/sns/latest/dg/sns-create-topic.html"
+        },
+        {
+          "id": "sns_fifo_topic",
+          "var_name": "fifo_topic",
+          "label": "Enable FIFO (First-In-First-Out)",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "basic",
+          "default": {
+            "value": false,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_sns_topic",
+            "argument": "fifo_topic"
+          },
+          "why": "Ensures strict message ordering and deduplication for mission-critical pub/sub architectures.",
+          "impact": "FIFO topics can strictly only be subscribed to by FIFO SQS queues. Topic names must end with '.fifo'.",
+          "learn_more": "https://docs.aws.amazon.com/sns/latest/dg/sns-fifo-topics.html"
+        }
+      ]
+    }
+  ]
+}

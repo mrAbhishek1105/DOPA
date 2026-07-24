@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_lambda_function",
+  "display_name": "AWS Lambda Function",
+  "category": "compute",
+  "description": "Executes code in response to events without provisioning or managing servers.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Function Configuration",
+      "description": "Runtime environment, handler, and function metadata",
+      "fields": [
+        {
+          "id": "lambda_function_name",
+          "var_name": "function_name",
+          "label": "Function Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "api-worker-handler",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9-_]{1,64}$",
+            "error_message": "1 to 64 alphanumeric characters, hyphens, and underscores."
+          },
+          "terraform": {
+            "resource": "aws_lambda_function",
+            "argument": "function_name"
+          },
+          "why": "Unique name identifying the Lambda function within the region.",
+          "impact": "Changing function name recreates the resource.",
+          "learn_more": "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+        },
+        {
+          "id": "lambda_runtime",
+          "var_name": "runtime",
+          "label": "Runtime Engine",
+          "ui_component": "select",
+          "options": [
+            { "label": "Node.js 20.x", "value": "nodejs20.x" },
+            { "label": "Python 3.12", "value": "python3.12" },
+            { "label": "Java 21 (Corretto)", "value": "java21" },
+            { "label": "Go 1.x (provided.al2023)", "value": "provided.al2023" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "nodejs20.x",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lambda_function",
+            "argument": "runtime"
+          },
+          "why": "The underlying execution environment language and framework version.",
+          "impact": "Incompatible code syntax with chosen runtime causes instant execution failure.",
+          "learn_more": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+        },
+        {
+          "id": "lambda_memory_size",
+          "var_name": "memory_size",
+          "label": "Allocated Memory (MB)",
+          "ui_component": "slider",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": 128,
+            "source": "aws"
+          },
+          "recommended": {
+            "development": 128,
+            "production": 1024
+          },
+          "terraform": {
+            "resource": "aws_lambda_function",
+            "argument": "memory_size"
+          },
+          "why": "Amount of RAM allocated. Lambda allocates CPU power linearly proportional to memory.",
+          "impact": "Increasing memory scales up CPU share, reducing total execution duration and cost for CPU-heavy tasks.",
+          "learn_more": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-memory-console"
+        }
+      ]
+    }
+  ]
+}

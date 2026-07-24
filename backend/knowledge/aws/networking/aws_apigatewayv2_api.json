@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_apigatewayv2_api",
+  "display_name": "API Gateway v2 (HTTP / WebSocket)",
+  "category": "networking",
+  "description": "High-performance, low-cost HTTP or WebSocket API service.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "API Profile",
+      "description": "Protocol selection and naming",
+      "fields": [
+        {
+          "id": "apigw_name",
+          "var_name": "name",
+          "label": "API Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-api-gateway",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9-_]{1,128}$",
+            "error_message": "1 to 128 alphanumeric characters, hyphens, and underscores."
+          },
+          "terraform": {
+            "resource": "aws_apigatewayv2_api",
+            "argument": "name"
+          },
+          "why": "Identifies the API instance inside the AWS API Gateway console.",
+          "impact": "Updates in-place.",
+          "learn_more": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html"
+        },
+        {
+          "id": "apigw_protocol_type",
+          "var_name": "protocol_type",
+          "label": "Protocol Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "HTTP (RESTful Microservices)", "value": "HTTP" },
+            { "label": "WebSocket (Real-Time Bidirectional)", "value": "WEBSOCKET" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "HTTP",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_apigatewayv2_api",
+            "argument": "protocol_type"
+          },
+          "why": "HTTP APIs offer up to 71% cost reduction and lower latency compared to v1 REST APIs.",
+          "impact": "Recreates the API Gateway instance if changed.",
+          "learn_more": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html"
+        }
+      ]
+    }
+  ]
+}

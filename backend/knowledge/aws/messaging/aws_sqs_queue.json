@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_sqs_queue",
+  "display_name": "SQS Queue",
+  "category": "messaging",
+  "description": "Fully managed message queuing service that enables you to decouple and scale microservices.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Queue Settings",
+      "description": "Naming and queue type",
+      "fields": [
+        {
+          "id": "sqs_name",
+          "var_name": "name",
+          "label": "Queue Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-event-queue",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_sqs_queue",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the queue. FIFO queues must end with the '.fifo' suffix.",
+          "impact": "Changing the name recreates the queue and purges all unread messages.",
+          "learn_more": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-limits.html"
+        },
+        {
+          "id": "sqs_fifo_queue",
+          "var_name": "fifo_queue",
+          "label": "Enable FIFO (First-In-First-Out)",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "basic",
+          "default": {
+            "value": false,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_sqs_queue",
+            "argument": "fifo_queue"
+          },
+          "why": "Standard queues offer best-effort ordering. FIFO guarantees exact order and exactly-once processing.",
+          "impact": "FIFO queues have lower throughput limits compared to Standard queues and require the '.fifo' name suffix.",
+          "learn_more": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html"
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "title": "Message Processing",
+      "description": "Timeouts and retention periods",
+      "fields": [
+        {
+          "id": "sqs_visibility_timeout",
+          "var_name": "visibility_timeout_seconds",
+          "label": "Visibility Timeout (Seconds)",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "advanced",
+          "default": {
+            "value": 30,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_sqs_queue",
+            "argument": "visibility_timeout_seconds"
+          },
+          "why": "The length of time a message is hidden from other consumers while a worker processes it.",
+          "impact": "If a worker fails to process and delete the message within this timeout, it becomes visible for another worker to pick up.",
+          "learn_more": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+        },
+        {
+          "id": "sqs_message_retention",
+          "var_name": "message_retention_seconds",
+          "label": "Message Retention Period (Seconds)",
+          "ui_component": "number",
+          "importance": "optional",
+          "visibility": "expert",
+          "default": {
+            "value": 345600,
+            "source": "aws"
+          },
+          "recommended": {
+            "development": 345600,
+            "production": 1209600
+          },
+          "terraform": {
+            "resource": "aws_sqs_queue",
+            "argument": "message_retention_seconds"
+          },
+          "why": "How long SQS retains a message before automatically deleting it (default 4 days, max 14 days).",
+          "impact": "Messages not processed within this window are permanently lost.",
+          "learn_more": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-retention.html"
+        }
+      ]
+    }
+  ]
+}
