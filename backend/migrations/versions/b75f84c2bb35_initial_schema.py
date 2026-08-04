@@ -60,6 +60,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index('ix_requirements_project_id', 'requirements', ['project_id'])
+    op.create_index('ix_architectures_project_id', 'architectures', ['project_id'])
+    op.create_index('ix_reports_project_id_type', 'reports', ['project_id', 'report_type'])
     # ### end Alembic commands ###
 
 

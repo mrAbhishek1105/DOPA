@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_security_group",
+  "display_name": "Security Group",
+  "category": "security",
+  "description": "Acts as a virtual stateful firewall controlling inbound and outbound network traffic for resources.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Identity & Placement",
+      "description": "Naming, description, and target VPC attachment",
+      "fields": [
+        {
+          "id": "sg_name",
+          "var_name": "security_group_name",
+          "label": "Security Group Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-firewall-sg",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9_.-]{1,255}$",
+            "error_message": "1 to 255 alphanumeric characters, underscores, dashes, or periods."
+          },
+          "terraform": {
+            "resource": "aws_security_group",
+            "argument": "name"
+          },
+          "why": "Human-readable identifier for the security group in the AWS account.",
+          "impact": "Changing the security group name forces resource re-creation.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        },
+        {
+          "id": "sg_description",
+          "var_name": "description",
+          "label": "Description",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "Managed by DOPA Platform",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_security_group",
+            "argument": "description"
+          },
+          "why": "Describes the security group's intended purpose and firewall rules.",
+          "impact": "Forces resource re-creation if modified post-creation.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        },
+        {
+          "id": "sg_vpc_id",
+          "var_name": "vpc_id",
+          "label": "VPC ID",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "terraform": {
+            "resource": "aws_security_group",
+            "argument": "vpc_id"
+          },
+          "why": "Binds this firewall group exclusively to a specific Virtual Private Cloud.",
+          "impact": "Changing VPC ID forces destruction and re-creation of the security group.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        }
+      ]
+    }
+  ]
+}

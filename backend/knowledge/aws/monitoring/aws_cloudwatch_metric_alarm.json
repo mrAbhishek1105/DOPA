@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_cloudwatch_metric_alarm",
+  "display_name": "CloudWatch Metric Alarm",
+  "category": "observability",
+  "description": "Watches a single CloudWatch metric or math expression and triggers actions based on thresholds.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Alarm Definition",
+      "description": "Identity and metric to track",
+      "fields": [
+        {
+          "id": "cw_alarm_name",
+          "var_name": "alarm_name",
+          "label": "Alarm Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "high-cpu-utilization-alarm",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "alarm_name"
+          },
+          "why": "Identifies the alarm in dashboards and SNS alert messages.",
+          "impact": "Changing the name replaces the alarm resource entirely.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+        },
+        {
+          "id": "cw_metric_name",
+          "var_name": "metric_name",
+          "label": "Metric Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "CPUUtilization",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "metric_name"
+          },
+          "why": "The specific metric being watched (e.g., 'CPUUtilization', 'DatabaseConnections').",
+          "impact": "Must exactly match the telemetry published to CloudWatch.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/viewing_metrics_with_cloudwatch.html"
+        },
+        {
+          "id": "cw_namespace",
+          "var_name": "namespace",
+          "label": "Metric Namespace",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "AWS/EC2",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "namespace"
+          },
+          "why": "Categorizes the metric by service (e.g., 'AWS/EC2', 'AWS/RDS', 'AWS/Lambda').",
+          "impact": "Incorrect namespaces will result in the alarm permanently reading as 'INSUFFICIENT_DATA'.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/aws-namespaces.html"
+        }
+      ]
+    },
+    {
+      "id": "conditions",
+      "title": "Evaluation Conditions",
+      "description": "Thresholds and evaluation periods",
+      "fields": [
+        {
+          "id": "cw_comparison_operator",
+          "var_name": "comparison_operator",
+          "label": "Comparison Operator",
+          "ui_component": "select",
+          "options": [
+            { "label": "Greater Than Threshold", "value": "GreaterThanThreshold" },
+            { "label": "Greater Than Or Equal To Threshold", "value": "GreaterThanOrEqualToThreshold" },
+            { "label": "Less Than Threshold", "value": "LessThanThreshold" },
+            { "label": "Less Than Or Equal To Threshold", "value": "LessThanOrEqualToThreshold" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "GreaterThanOrEqualToThreshold",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "comparison_operator"
+          },
+          "why": "The mathematical operation used to compare the metric against the target threshold.",
+          "impact": "Inverts the logic of when the alarm triggers.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html#alarms-and-missing-data"
+        },
+        {
+          "id": "cw_threshold",
+          "var_name": "threshold",
+          "label": "Threshold Value",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 80,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "threshold"
+          },
+          "why": "The target boundary line. E.g., if metric is CPUUtilization and threshold is 80, alarm fires at 80%.",
+          "impact": "Setting this too low causes alert fatigue; setting it too high causes missed outages.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+        },
+        {
+          "id": "cw_evaluation_periods",
+          "var_name": "evaluation_periods",
+          "label": "Evaluation Periods (Consecutive)",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 2,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_cloudwatch_metric_alarm",
+            "argument": "evaluation_periods"
+          },
+          "why": "Number of consecutive periods the metric must breach the threshold before triggering the alarm.",
+          "impact": "Higher numbers prevent false positives from momentary metric spikes.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html#evaluating-alarms"
+        }
+      ]
+    }
+  ]
+}

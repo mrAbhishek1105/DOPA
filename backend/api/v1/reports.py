@@ -1,4 +1,5 @@
 import os
+import tempfile
 import uuid
 from typing import Any
 
@@ -141,9 +142,15 @@ async def download_package(project_id: uuid.UUID, db: AsyncSession = Depends(get
         raise HTTPException(status_code=404, detail="Artifact package not found. Run /reports/generate first.")
 
     pkg_info = report.payload
-    zip_path = pkg_info.get("zip_path")
+    expected_zip_path = os.path.join(
+        tempfile.gettempdir(),
+        "dopa_artifacts",
+        str(project_id),
+        f"dopa_architecture_{str(project_id)[:8]}.zip",
+    )
+    zip_path = expected_zip_path
 
-    if not zip_path or not os.path.exists(zip_path):
+    if not os.path.exists(zip_path):
         # Regenerate package if temp file expired
         project = await repo.get_project(project_id)
         if not project:

@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_ecs_service",
+  "display_name": "Amazon ECS Service (Fargate)",
+  "category": "compute",
+  "description": "Runs and maintains a specified number of instances of a task definition on serverless infrastructure.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Service Definition",
+      "description": "Naming, cluster attachment, and replica count",
+      "fields": [
+        {
+          "id": "ecs_service_name",
+          "var_name": "service_name",
+          "label": "Service Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-api-service",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9_-]{1,255}$",
+            "error_message": "1 to 255 alphanumeric characters, hyphens, and underscores allowed."
+          },
+          "terraform": {
+            "resource": "aws_ecs_service",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the ECS Service within the ECS cluster.",
+          "impact": "Changing service name destroys the existing service and creates a new one.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html"
+        },
+        {
+          "id": "ecs_launch_type",
+          "var_name": "launch_type",
+          "label": "Launch Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "AWS Fargate (Serverless)", "value": "FARGATE" },
+            { "label": "EC2 (Self-Managed Cluster)", "value": "EC2" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "FARGATE",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "FARGATE",
+            "production": "FARGATE"
+          },
+          "terraform": {
+            "resource": "aws_ecs_service",
+            "argument": "launch_type"
+          },
+          "why": "Fargate removes the operational overhead of provisioning and managing EC2 instances.",
+          "impact": "Changing launch type requires network configuration adjustments.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"
+        },
+        {
+          "id": "ecs_desired_count",
+          "var_name": "desired_count",
+          "label": "Desired Task Count",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 2,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": 1,
+            "production": 3
+          },
+          "terraform": {
+            "resource": "aws_ecs_service",
+            "argument": "desired_count"
+          },
+          "why": "Number of identical container task instances to keep running across availability zones.",
+          "impact": "Updates dynamically in-place without service interruption.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_desired_count.html"
+        }
+      ]
+    },
+    {
+      "id": "networking",
+      "title": "Fargate Network Configuration",
+      "description": "VPC awsvpc networking bindings for serverless containers",
+      "fields": [
+        {
+          "id": "ecs_assign_public_ip",
+          "var_name": "assign_public_ip",
+          "label": "Assign Public IP",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": false,
+            "source": "dopa_recommended"
+          },
+          "conditions": {
+            "show_if": {
+              "field_id": "ecs_launch_type",
+              "equals": "FARGATE"
+            }
+          },
+          "terraform": {
+            "resource": "aws_ecs_service",
+            "argument": "network_configuration.assign_public_ip"
+          },
+          "why": "Assigns an Elastic Network Interface public IP to tasks placed in public subnets.",
+          "impact": "Required if tasks are deployed in public subnets without a NAT Gateway to pull Docker images from DockerHub/ECR.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-task-networking.html"
+        }
+      ]
+    }
+  ]
+}

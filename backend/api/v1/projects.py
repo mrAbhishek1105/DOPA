@@ -1,18 +1,23 @@
-from datetime import datetime
+import logging
 import uuid
+from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
 from backend.repositories.project_repository import ProjectRepository
+from backend.schemas.requirements import RequirementModel
+from backend.services.pattern_engine import PatternEngine
+from backend.services.recommendation_engine import RecommendationEngine
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 class CreateProjectRequest(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=256)
 
 class ProjectSummaryResponse(BaseModel):
     id: uuid.UUID
@@ -31,7 +36,7 @@ async def create_project(request: CreateProjectRequest, db: AsyncSession = Depen
     )
 
 @router.get("/", response_model=list[ProjectSummaryResponse])
-async def list_projects(limit: int = 50, db: AsyncSession = Depends(get_db)):
+async def list_projects(limit: int = Query(default=50, ge=1, le=200), db: AsyncSession = Depends(get_db)):
     repo = ProjectRepository(db)
     projects = await repo.list_projects(limit=limit)
     return [
@@ -108,10 +113,6 @@ async def get_project_graph(project_id: uuid.UUID, db: AsyncSession = Depends(ge
         "edges": latest_arch.edges
     }
 
-from backend.schemas.requirements import RequirementModel
-from backend.services.pattern_engine import PatternEngine
-from backend.services.recommendation_engine import RecommendationEngine
-
 @router.get("/{project_id}/recommendations", response_model=dict[str, Any])
 async def get_project_recommendations(project_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     repo = ProjectRepository(db)
@@ -133,6 +134,7 @@ async def get_project_recommendations(project_id: uuid.UUID, db: AsyncSession = 
         clean_extracted = {k: v for k, v in (latest_req.extracted or {}).items() if not k.startswith("__")}
         req_model = RequirementModel(**clean_extracted)
     except Exception:
+        logger.warning("Failed to build recommendations for project %s", project_id, exc_info=True)
         return {"options": []}
 
     pattern_engine = PatternEngine()

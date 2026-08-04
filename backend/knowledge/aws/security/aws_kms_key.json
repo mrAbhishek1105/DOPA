@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_kms_key",
+  "display_name": "AWS KMS Key",
+  "category": "security",
+  "description": "Customer managed encryption key (KMS) for cryptographically securing data at rest across AWS services.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Key Attributes",
+      "description": "Usage configuration and automated rotation settings",
+      "fields": [
+        {
+          "id": "kms_description",
+          "var_name": "description",
+          "label": "Key Description",
+          "ui_component": "text",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": "Customer managed key for data encryption",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_kms_key",
+            "argument": "description"
+          },
+          "why": "Describes key ownership and intended cryptographic scope.",
+          "impact": "Updates in-place without key material changes.",
+          "learn_more": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id"
+        },
+        {
+          "id": "kms_enable_key_rotation",
+          "var_name": "enable_key_rotation",
+          "label": "Enable Automatic Annual Key Rotation",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": true,
+            "production": true
+          },
+          "terraform": {
+            "resource": "aws_kms_key",
+            "argument": "enable_key_rotation"
+          },
+          "why": "Automatically generates new cryptographic key material once per year without breaking existing decryptions.",
+          "impact": "Enforces security compliance best practices without requiring manual re-encryption.",
+          "learn_more": "https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html"
+        },
+        {
+          "id": "kms_deletion_window_in_days",
+          "var_name": "deletion_window_in_days",
+          "label": "Pending Deletion Waiting Period (Days)",
+          "ui_component": "number",
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": 30,
+            "source": "aws"
+          },
+          "validation": {
+            "regex": "^([7-9]|[1-2][0-9]|30)$",
+            "error_message": "Deletion window must be between 7 and 30 days."
+          },
+          "terraform": {
+            "resource": "aws_kms_key",
+            "argument": "deletion_window_in_days"
+          },
+          "why": "Safety delay before AWS permanently purges the key material upon deletion requests.",
+          "impact": "Data encrypted with a deleted KMS key becomes permanently unrecoverable once deleted.",
+          "learn_more": "https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html"
+        }
+      ]
+    }
+  ]
+}

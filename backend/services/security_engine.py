@@ -45,11 +45,11 @@ class SecurityEngine:
         risk_score = max(0, min(100, raw_score))
 
         risk_level = "LOW"
-        if risk_score < 50 or critical_count > 0:
+        if critical_count > 0:
             risk_level = "CRITICAL"
-        elif risk_score < 75 or high_count > 0:
+        elif high_count > 0:
             risk_level = "HIGH"
-        elif risk_score < 90 or medium_count > 0:
+        elif medium_count > 0:
             risk_level = "MEDIUM"
 
         return {
@@ -136,6 +136,6 @@ class SecurityEngine:
                             "target_service": fc.get("resource"),
                         })
                 except Exception:
-                    pass
+                    logger.warning("Failed to parse Checkov output, scan results may be incomplete", exc_info=True)
 
         return findings

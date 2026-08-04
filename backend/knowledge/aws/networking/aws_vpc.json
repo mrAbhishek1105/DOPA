@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_vpc",
+  "display_name": "Virtual Private Cloud (VPC)",
+  "category": "networking",
+  "description": "Logically isolated virtual network for hosting AWS cloud resources.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Network Addressing",
+      "description": "Primary IPv4 block and tenancy configuration",
+      "fields": [
+        {
+          "id": "vpc_cidr_block",
+          "var_name": "cidr_block",
+          "label": "IPv4 CIDR Block",
+          "ui_component": "cidr",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "10.0.0.0/16",
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": "10.0.0.0/16",
+            "production": "10.0.0.0/16"
+          },
+          "validation": {
+            "regex": "^(([0-9]{1,3}\\.){3}[0-9]{1,3})\\/(1[6-9]|2[0-8])$",
+            "error_message": "Must be a valid IPv4 CIDR block between /16 and /28 prefix length."
+          },
+          "terraform": {
+            "resource": "aws_vpc",
+            "argument": "cidr_block"
+          },
+          "why": "Defines the total available private IP address range for subnets inside this VPC.",
+          "impact": "Cannot be modified directly; changing the primary CIDR block recreates the entire VPC and all nested resources.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html"
+        },
+        {
+          "id": "vpc_instance_tenancy",
+          "var_name": "instance_tenancy",
+          "label": "Instance Tenancy",
+          "ui_component": "select",
+          "options": [
+            { "label": "Shared (Default)", "value": "default" },
+            { "label": "Dedicated Hardware", "value": "dedicated" }
+          ],
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": "default",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_vpc",
+            "argument": "instance_tenancy"
+          },
+          "why": "Determines whether EC2 instances launched into this VPC run on single-tenant physical hardware.",
+          "impact": "Dedicated tenancy incurs significant additional hardware hosting costs across all launched EC2 instances.",
+          "learn_more": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-instance-tenancy.html"
+        }
+      ]
+    },
+    {
+      "id": "dns",
+      "title": "DNS Configuration",
+      "description": "Internal DNS lookup and hostname resolution settings",
+      "fields": [
+        {
+          "id": "vpc_enable_dns_support",
+          "var_name": "enable_dns_support",
+          "label": "Enable DNS Resolution",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_vpc",
+            "argument": "enable_dns_support"
+          },
+          "why": "Enables resolution of public/private DNS hostnames via Amazon-provided Route 53 DNS server.",
+          "impact": "Required for AWS PrivateLink endpoints, Route 53 Private Zones, and public hostname resolution.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html"
+        },
+        {
+          "id": "vpc_enable_dns_hostnames",
+          "var_name": "enable_dns_hostnames",
+          "label": "Enable DNS Hostnames",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "conditions": {
+            "show_if": {
+              "field_id": "vpc_enable_dns_support",
+              "equals": true
+            }
+          },
+          "terraform": {
+            "resource": "aws_vpc",
+            "argument": "enable_dns_hostnames"
+          },
+          "why": "Assigns automatic public DNS hostnames to EC2 instances assigned public IP addresses.",
+          "impact": "Disabling prevents EC2 instances from acquiring public DNS names upon launch.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-hostnames"
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update as sql_update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -50,11 +50,10 @@ class ProjectRepository:
     async def update_status(self, project_id: uuid.UUID | str, status: str) -> None:
         if isinstance(project_id, str):
             project_id = uuid.UUID(project_id)
-            
-        project = await self.get_project(project_id)
-        if project:
-            project.status = status
-            await self.session.commit()
+
+        stmt = sql_update(Project).where(Project.id == project_id).values(status=status)
+        await self.session.execute(stmt)
+        await self.session.commit()
 
     async def save_requirement(self, project_id: uuid.UUID | str, extracted: dict[str, Any], missing: list[str], is_complete: bool) -> Requirement:
         if isinstance(project_id, str):
@@ -110,6 +109,7 @@ class ProjectRepository:
             select(Report)
             .where(Report.project_id == project_id, Report.report_type == report_type)
             .order_by(Report.created_at.desc())
+            .limit(1)
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()

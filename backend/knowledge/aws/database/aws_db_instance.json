@@ -1,0 +1,255 @@
+{
+  "schema_version": "2.0.0",
+  "resource_type": "aws_db_instance",
+  "display_name": "Amazon RDS DB Instance",
+  "category": "database",
+  "description": "Managed relational database instance with automated backups, multi-AZ failover, and encryption.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Engine & Instance Configuration",
+      "description": "Database engine type, version, and compute sizing",
+      "fields": [
+        {
+          "id": "rds_identifier",
+          "var_name": "identifier",
+          "label": "DB Instance Identifier",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "app-postgres-db",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-z][a-z0-9-]{0,62}$",
+            "error_message": "Starts with a letter, contains only lowercase letters, numbers, or hyphens."
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "identifier"
+          },
+          "why": "Uniquely identifies the RDS instance in the region.",
+          "impact": "Changing the identifier forces a destructive recreation or a rename with potential DNS downtime.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html"
+        },
+        {
+          "id": "rds_engine",
+          "var_name": "engine",
+          "label": "Database Engine",
+          "ui_component": "select",
+          "options": [
+            { "label": "PostgreSQL", "value": "postgres" },
+            { "label": "MySQL", "value": "mysql" },
+            { "label": "MariaDB", "value": "mariadb" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "postgres",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "engine"
+          },
+          "why": "Determines the core relational database software running on the instance.",
+          "impact": "Cannot be changed after creation. Forces resource replacement.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBEngines.html"
+        },
+        {
+          "id": "rds_engine_version",
+          "var_name": "engine_version",
+          "label": "Engine Version",
+          "ui_component": "text",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "15.4",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "engine_version"
+          },
+          "why": "Specific minor release version for database engine patching.",
+          "impact": "Upgrades trigger a brief maintenance restart window."
+        },
+        {
+          "id": "rds_instance_class",
+          "var_name": "instance_class",
+          "label": "Instance Class",
+          "ui_component": "select",
+          "options": [
+            { "label": "db.t4g.micro (2 vCPU, 1GB RAM - Dev)", "value": "db.t4g.micro" },
+            { "label": "db.m6g.large (2 vCPU, 8GB RAM - Prod)", "value": "db.m6g.large" },
+            { "label": "db.r6g.xlarge (4 vCPU, 32GB RAM - High Capacity)", "value": "db.r6g.xlarge" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "db.m6g.large",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "instance_class"
+          },
+          "why": "Dictates the compute and memory capacity of the database server.",
+          "impact": "Changing this causes brief database downtime during instance reboot."
+        },
+        {
+          "id": "rds_multi_az",
+          "var_name": "multi_az",
+          "label": "Multi-AZ High Availability Deployment",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "multi_az"
+          },
+          "why": "Provisions a synchronous standby replica in a secondary Availability Zone for automated failover.",
+          "impact": "Doubles database hourly running cost."
+        }
+      ]
+    },
+    {
+      "id": "storage_security",
+      "title": "Storage & Encryption",
+      "description": "Disk size, auto-scaling, and KMS security",
+      "fields": [
+        {
+          "id": "rds_allocated_storage",
+          "var_name": "allocated_storage",
+          "label": "Allocated Storage (GB)",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 50,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "allocated_storage"
+          },
+          "why": "Initial disk storage capacity provisioned for database volume.",
+          "impact": "Can be scaled up dynamically without downtime, but cannot be scaled down."
+        },
+        {
+          "id": "rds_max_allocated_storage",
+          "var_name": "max_allocated_storage",
+          "label": "Storage Auto-Scaling Max Limit (GB)",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 500,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "max_allocated_storage"
+          },
+          "why": "Maximum storage threshold to which RDS can automatically grow when free disk space falls below 10%.",
+          "impact": "Prevents database outages due to disk full errors."
+        },
+        {
+          "id": "rds_storage_encrypted",
+          "var_name": "storage_encrypted",
+          "label": "Storage Encryption (KMS)",
+          "ui_component": "switch",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": true,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "storage_encrypted"
+          },
+          "why": "Encrypts database storage, automated backups, read replicas, and snapshots using AWS KMS.",
+          "impact": "Mandatory for SOC2 & PCI-DSS compliance."
+        },
+        {
+          "id": "rds_master_username",
+          "var_name": "username",
+          "label": "Master Username",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": "dbadmin",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "username"
+          },
+          "why": "Primary administrative user for the database cluster.",
+          "impact": "Cannot be changed after creation."
+        }
+      ]
+    },
+    {
+      "id": "backups_telemetry",
+      "title": "Backups & Telemetry",
+      "description": "Backup retention and Performance Insights",
+      "fields": [
+        {
+          "id": "rds_backup_retention",
+          "var_name": "backup_retention_period",
+          "label": "Backup Retention Period (Days)",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "operational_frequency": "high",
+          "default": {
+            "value": 7,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "backup_retention_period"
+          },
+          "why": "Number of days automated daily backups and transaction logs are retained for point-in-time recovery.",
+          "impact": "Setting to 0 disables automated backups and point-in-time recovery."
+        },
+        {
+          "id": "rds_performance_insights",
+          "var_name": "enable_performance_insights",
+          "label": "Enable Performance Insights",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "operational_frequency": "medium",
+          "default": {
+            "value": true,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_db_instance",
+            "argument": "enable_performance_insights"
+          },
+          "why": "Deep database performance monitoring dashboard analyzing query load and wait states.",
+          "impact": "Included free for 7 days of rolling telemetry retention."
+        }
+      ]
+    }
+  ]
+}

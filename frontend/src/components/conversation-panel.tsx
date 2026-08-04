@@ -127,7 +127,9 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
             <div className="flex-1 overflow-y-auto p-3 custom-scrollbar" ref={scrollRef}>
               <div className="space-y-3 pb-2">
                 <AnimatePresence initial={false}>
-                {messages.map((msg) => (
+                {messages.map((msg, idx) => {
+                  const isLast = idx === messages.length - 1;
+                  return (
                   <motion.div
                     key={msg.id}
                     initial={{ opacity: 0, y: 12, scale: 0.95 }}
@@ -161,6 +163,26 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
                       <div className="whitespace-pre-wrap break-words">
                         {msg.content}
                       </div>
+
+                      {/* Quick-reply chips */}
+                      {msg.role === "dopa" && msg.suggested_replies && msg.suggested_replies.length > 0 && isLast && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {msg.suggested_replies.map((reply, rIdx) => (
+                            <button
+                              key={rIdx}
+                              onClick={() => {
+                                if (!isPending && !isComplete) {
+                                  sendMessage(reply);
+                                }
+                              }}
+                              disabled={isPending || isComplete}
+                              className="px-2.5 py-1.5 rounded-full bg-slate-800/80 hover:bg-blue-600/20 text-[10px] text-blue-400 border border-slate-700 hover:border-blue-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {reply}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {msg.role === "user" && (
                       <div className="shrink-0 w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center mt-0.5">
@@ -168,7 +190,8 @@ export function ConversationPanel({ projectId }: { projectId: string }) {
                       </div>
                     )}
                   </motion.div>
-                ))}
+                );
+                })}
               </AnimatePresence>
 
               {/* Pipeline progress indicator */}

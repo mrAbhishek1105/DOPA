@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "aws": {
+      "alb": [
+        {
+          "condition": { "property": "enable_https", "equals": true },
+          "require_properties": ["certificate_arn"],
+          "error": "ACM Certificate ARN is required when HTTPS termination is enabled."
+        }
+      ],
+      "rds_postgres": [
+        {
+          "condition": { "property": "multi_az", "equals": true },
+          "minimum_allocated_storage": 50,
+          "error": "Multi-AZ RDS deployments require at least 50 GB allocated GP3 storage."
+        }
+      ]
+    }
+  }
+}

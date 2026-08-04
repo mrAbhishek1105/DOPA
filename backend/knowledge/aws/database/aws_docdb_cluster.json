@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_docdb_cluster",
+  "display_name": "Amazon DocumentDB Cluster",
+  "category": "database",
+  "description": "Fully managed, scalable, MongoDB-compatible document database.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Cluster Definition",
+      "description": "Identity, version, and credentials",
+      "fields": [
+        {
+          "id": "docdb_cluster_identifier",
+          "var_name": "cluster_identifier",
+          "label": "Cluster Identifier",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "docdb-cluster",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_docdb_cluster",
+            "argument": "cluster_identifier"
+          },
+          "why": "Identifies the DocumentDB cluster endpoint.",
+          "impact": "Changing this destroys and recreates the cluster.",
+          "learn_more": "https://docs.aws.amazon.com/documentdb/latest/developerguide/db-cluster-manage.html"
+        },
+        {
+          "id": "docdb_master_username",
+          "var_name": "master_username",
+          "label": "Master Username",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "docdbadmin",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_docdb_cluster",
+            "argument": "master_username"
+          },
+          "why": "The root administrative user for the MongoDB-compatible database.",
+          "impact": "Cannot be changed after creation.",
+          "learn_more": "https://docs.aws.amazon.com/documentdb/latest/developerguide/security.html"
+        },
+        {
+          "id": "docdb_skip_final_snapshot",
+          "var_name": "skip_final_snapshot",
+          "label": "Skip Final Snapshot on Deletion",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": false,
+            "source": "aws"
+          },
+          "recommended": {
+            "development": true,
+            "production": false
+          },
+          "terraform": {
+            "resource": "aws_docdb_cluster",
+            "argument": "skip_final_snapshot"
+          },
+          "why": "Determines if AWS takes a backup immediately before permanently deleting the cluster.",
+          "impact": "If true, deleting the cluster means immediate and permanent loss of all data unless manual backups exist.",
+          "learn_more": "https://docs.aws.amazon.com/documentdb/latest/developerguide/db-cluster-delete.html"
+        }
+      ]
+    }
+  ]
+}

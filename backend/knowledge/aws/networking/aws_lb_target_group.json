@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_lb_target_group",
+  "display_name": "LB Target Group",
+  "category": "networking",
+  "description": "Routes incoming traffic requests to registered backend targets (EC2, IP addresses, Lambda).",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Target Definition",
+      "description": "Backend routing protocol, target type, and port",
+      "fields": [
+        {
+          "id": "tg_name",
+          "var_name": "name",
+          "label": "Target Group Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "api-tg-8080",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9-]{1,32}$",
+            "error_message": "1 to 32 alphanumeric characters and hyphens allowed."
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "name"
+          },
+          "why": "Unique target group identifier within the AWS account.",
+          "impact": "Renaming recreates the target group.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html"
+        },
+        {
+          "id": "tg_port",
+          "var_name": "port",
+          "label": "Backend Target Port",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 8080,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "port"
+          },
+          "why": "The destination port on backend targets receiving forwarded traffic.",
+          "impact": "Must match application container/server listening port.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html"
+        },
+        {
+          "id": "tg_protocol",
+          "var_name": "protocol",
+          "label": "Protocol",
+          "ui_component": "select",
+          "options": [
+            { "label": "HTTP", "value": "HTTP" },
+            { "label": "HTTPS", "value": "HTTPS" },
+            { "label": "gRPC", "value": "GRPC" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "HTTP",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "protocol"
+          },
+          "why": "Protocol used by ALB to forward requests to target backends.",
+          "impact": "Recreates the target group if changed.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html"
+        },
+        {
+          "id": "tg_target_type",
+          "var_name": "target_type",
+          "label": "Target Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "Instance (EC2 Instance ID)", "value": "instance" },
+            { "label": "IP (Pod/Container Virtual IP)", "value": "ip" },
+            { "label": "Lambda (Serverless Function)", "value": "lambda" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "ip",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_target_group",
+            "argument": "target_type"
+          },
+          "why": "'ip' target type is mandatory for ECS Fargate tasks and Kubernetes Pods using awsvpc mode.",
+          "impact": "Determines how targets are attached and routed.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#target-type"
+        }
+      ]
+    }
+  ]
+}

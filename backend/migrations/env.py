@@ -28,7 +28,7 @@ if str(ROOT) not in sys.path:
 load_dotenv(ROOT / "backend/.env")
 
 from backend.database import Base
-from backend.models import *  # ensure models are loaded
+from backend.models.project import Architecture, Project, Report, Requirement
 
 # add your model's MetaData object here
 # for 'autogenerate' support

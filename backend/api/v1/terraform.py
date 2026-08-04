@@ -50,13 +50,15 @@ async def generate_terraform(request: GenerateTerraformRequest, db: AsyncSession
         environment="prod",
     )
 
+    await repo.update_status(project.id, "terraform_generating")
+
     await repo.save_report(
         project_id=project.id,
         report_type="terraform",
         payload={"files": files},
     )
 
-    await repo.update_status(project.id, "terraform_generating")
+    await repo.update_status(project.id, "analyzing")
 
     return {
         "project_id": str(project.id),

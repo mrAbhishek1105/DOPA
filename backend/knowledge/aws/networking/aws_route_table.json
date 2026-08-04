@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_route_table",
+  "display_name": "VPC Route Table",
+  "category": "networking",
+  "description": "Set of routing rules (routes) used to determine where network traffic from subnets is directed.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Route Table Binding",
+      "description": "VPC scope and route associations",
+      "fields": [
+        {
+          "id": "rt_vpc_id",
+          "var_name": "vpc_id",
+          "label": "VPC ID",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "terraform": {
+            "resource": "aws_route_table",
+            "argument": "vpc_id"
+          },
+          "why": "Binds the routing table scope to a single VPC.",
+          "impact": "Changing VPC ID recreates the route table.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+        }
+      ]
+    }
+  ]
+}

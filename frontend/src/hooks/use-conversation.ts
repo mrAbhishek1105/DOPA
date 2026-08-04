@@ -78,7 +78,13 @@ export function useConversation(projectId: string) {
         replyContent = "Understood. Can you provide more details about your application?";
       }
 
-      addMessage(projectId, { id: nextId(), role: "dopa", content: replyContent });
+      addMessage(projectId, { 
+        id: nextId(), 
+        role: "dopa", 
+        content: replyContent,
+        suggested_replies: data.suggested_replies,
+        field_being_asked: data.field_being_asked,
+      });
       queryClient.invalidateQueries({ queryKey: ["status", projectId] });
       queryClient.invalidateQueries({ queryKey: ["requirements", projectId] });
     },

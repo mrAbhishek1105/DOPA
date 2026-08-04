@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_eks_node_group",
+  "display_name": "EKS Managed Node Group",
+  "category": "compute",
+  "description": "Automates the provisioning and lifecycle management of nodes (EC2 instances) for EKS Kubernetes clusters.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Node Group Configuration",
+      "description": "Cluster attachment and instance sizing",
+      "fields": [
+        {
+          "id": "eks_ng_name",
+          "var_name": "node_group_name",
+          "label": "Node Group Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "eks-worker-ng",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_eks_node_group",
+            "argument": "node_group_name"
+          },
+          "why": "Names the underlying Auto Scaling Group and instances.",
+          "impact": "Changing the name forces the creation of a new node group and draining of the old one.",
+          "learn_more": "https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html"
+        },
+        {
+          "id": "eks_ng_cluster_name",
+          "var_name": "cluster_name",
+          "label": "Target EKS Cluster Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-eks-cluster",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_eks_node_group",
+            "argument": "cluster_name"
+          },
+          "why": "Binds these worker nodes to a specific EKS Control Plane.",
+          "impact": "Node group will fail to join if the specified cluster does not exist or lacks correct IAM mapping.",
+          "learn_more": "https://docs.aws.amazon.com/eks/latest/userguide/create-managed-node-group.html"
+        }
+      ]
+    },
+    {
+      "id": "scaling",
+      "title": "Scaling Configuration",
+      "description": "Minimum, maximum, and desired node counts",
+      "fields": [
+        {
+          "id": "eks_ng_desired_size",
+          "var_name": "desired_size",
+          "label": "Desired Capacity",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 2,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_eks_node_group",
+            "argument": "scaling_config.desired_size"
+          },
+          "why": "The target number of running EC2 worker nodes.",
+          "impact": "Updates scale the group up or down. Can be overridden dynamically by the Kubernetes Cluster Autoscaler.",
+          "learn_more": "https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html"
+        },
+        {
+          "id": "eks_ng_max_size",
+          "var_name": "max_size",
+          "label": "Maximum Capacity",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 5,
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_eks_node_group",
+            "argument": "scaling_config.max_size"
+          },
+          "why": "Hard limit on how many nodes the group can scale out to.",
+          "impact": "Prevents runaway cloud costs during traffic spikes or misconfigured Cluster Autoscaler behavior.",
+          "learn_more": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-capacity-limits.html"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_ecs_task_definition",
+  "display_name": "ECS Task Definition",
+  "category": "compute",
+  "description": "Blueprint describing how docker containers should launch, including CPU, memory, and networking.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Task Configuration",
+      "description": "Task family, sizing, and network mode",
+      "fields": [
+        {
+          "id": "ecs_task_family",
+          "var_name": "family",
+          "label": "Task Family Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-api-task",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9_-]{1,255}$",
+            "error_message": "Up to 255 letters, numbers, hyphens, and underscores."
+          },
+          "terraform": {
+            "resource": "aws_ecs_task_definition",
+            "argument": "family"
+          },
+          "why": "Acts as the logical grouping and versioning namespace for multiple revisions of this task.",
+          "impact": "Changing the family creates an entirely new task definition lineage rather than a new revision.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definitions.html"
+        },
+        {
+          "id": "ecs_network_mode",
+          "var_name": "network_mode",
+          "label": "Network Mode",
+          "ui_component": "select",
+          "options": [
+            { "label": "awsvpc (Required for Fargate)", "value": "awsvpc" },
+            { "label": "bridge (Docker Default)", "value": "bridge" },
+            { "label": "host (EC2 Host Network)", "value": "host" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "awsvpc",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_ecs_task_definition",
+            "argument": "network_mode"
+          },
+          "why": "'awsvpc' assigns each task its own Elastic Network Interface (ENI) and a primary private IP address.",
+          "impact": "Fargate strictly requires 'awsvpc'. Using 'bridge' or 'host' restricts you to EC2 launch types.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html"
+        },
+        {
+          "id": "ecs_task_cpu",
+          "var_name": "cpu",
+          "label": "Task CPU (vCPU)",
+          "ui_component": "select",
+          "options": [
+            { "label": "0.25 vCPU (256)", "value": "256" },
+            { "label": "0.5 vCPU (512)", "value": "512" },
+            { "label": "1 vCPU (1024)", "value": "1024" },
+            { "label": "2 vCPU (2048)", "value": "2048" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "256",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_ecs_task_definition",
+            "argument": "cpu"
+          },
+          "why": "Hard limit on CPU units allocated to the entire task.",
+          "impact": "Must match valid Fargate CPU/Memory combinations, otherwise task deployment will fail.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size"
+        },
+        {
+          "id": "ecs_task_memory",
+          "var_name": "memory",
+          "label": "Task Memory (MB)",
+          "ui_component": "select",
+          "options": [
+            { "label": "512 MB", "value": "512" },
+            { "label": "1024 MB (1 GB)", "value": "1024" },
+            { "label": "2048 MB (2 GB)", "value": "2048" },
+            { "label": "4096 MB (4 GB)", "value": "4096" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "512",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_ecs_task_definition",
+            "argument": "memory"
+          },
+          "why": "Hard limit on memory allocated to the task. If containers exceed this, they are killed (OOM).",
+          "impact": "Higher memory increases Fargate hourly costs.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size"
+        }
+      ]
+    }
+  ]
+}

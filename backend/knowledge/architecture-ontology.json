@@ -1,0 +1,96 @@
+{
+  "application_type": {
+    "possible_values": [
+      "web_app", "ecommerce", "saas", "internal_tool", "social_media", "event_driven", "ai_workload", "streaming"
+    ],
+    "affects": [
+      "architecture_pattern",
+      "database_choice",
+      "compute_choice"
+    ]
+  },
+  "traffic": {
+    "possible_values": [
+      "low", "medium", "high"
+    ],
+    "affects": [
+      "alb",
+      "autoscaling",
+      "cache",
+      "database_instance_size",
+      "cdn"
+    ]
+  },
+  "availability": {
+    "possible_values": [
+      "standard", "high", "multi_region"
+    ],
+    "affects": [
+      "route53",
+      "load_balancer",
+      "rds_multi_az",
+      "ecs_multi_az"
+    ]
+  },
+  "database": {
+    "possible_values": [
+      "postgresql", "mysql", "dynamodb", "mongodb", "sql"
+    ],
+    "affects": [
+      "backup",
+      "storage",
+      "multi_az_deployment"
+    ]
+  },
+  "region": {
+    "possible_values": [
+      "us-east-1", "us-west-2", "eu-west-1", "eu-central-1", "ap-southeast-1", "ap-northeast-1", "sa-east-1", "ca-central-1", "ap-south-1"
+    ],
+    "affects": [
+      "compliance",
+      "latency",
+      "cost"
+    ]
+  },
+  "budget": {
+    "possible_values": [
+      "low", "medium", "high"
+    ],
+    "affects": [
+      "instance_types",
+      "managed_services",
+      "spot_instances"
+    ]
+  },
+  "realtime_latency": {
+    "possible_values": [
+      "yes", "no"
+    ],
+    "affects": [
+      "websockets",
+      "api_gateway",
+      "cache",
+      "cdn"
+    ]
+  },
+  "media_storage": {
+    "possible_values": [
+      "low", "medium", "high"
+    ],
+    "affects": [
+      "s3",
+      "cloudfront"
+    ]
+  },
+  "compliance": {
+    "possible_values": [
+      "none", "soc2", "hipaa", "pci"
+    ],
+    "affects": [
+      "encryption",
+      "waf",
+      "shield",
+      "audit_logs"
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "service_id": "amazon_ecs_fargate",
+  "display_name": "Amazon ECS on Fargate",
+  "category": "compute",
+  "description": "Serverless container execution platform for running microservices.",
+  "configuration_order": [
+    "networking",
+    "security_groups",
+    "iam_roles",
+    "cluster",
+    "task_definition",
+    "service"
+  ],
+  "resource_components": [
+    {
+      "resource_type": "aws_vpc",
+      "role": "networking",
+      "required": true
+    },
+    {
+      "resource_type": "aws_subnet",
+      "role": "networking",
+      "required": true
+    },
+    {
+      "resource_type": "aws_security_group",
+      "role": "security",
+      "required": true
+    },
+    {
+      "resource_type": "aws_iam_role",
+      "role": "identity",
+      "required": true
+    },
+    {
+      "resource_type": "aws_ecs_cluster",
+      "role": "compute_cluster",
+      "required": true
+    },
+    {
+      "resource_type": "aws_ecs_task_definition",
+      "role": "container_definition",
+      "required": true
+    },
+    {
+      "resource_type": "aws_ecs_service",
+      "role": "orchestrator",
+      "required": true
+    }
+  ],
+  "dependency_graph": [
+    {
+      "source": "aws_ecs_service",
+      "depends_on": ["aws_ecs_cluster", "aws_ecs_task_definition", "aws_subnet", "aws_security_group"]
+    },
+    {
+      "source": "aws_ecs_task_definition",
+      "depends_on": ["aws_iam_role"]
+    },
+    {
+      "source": "aws_subnet",
+      "depends_on": ["aws_vpc"]
+    },
+    {
+      "source": "aws_security_group",
+      "depends_on": ["aws_vpc"]
+    }
+  ]
+}

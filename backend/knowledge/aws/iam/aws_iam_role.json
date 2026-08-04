@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_iam_role",
+  "display_name": "IAM Role",
+  "category": "iam",
+  "description": "An identity with specific permissions that AWS services or external identities can assume.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Role Identity",
+      "description": "Name and trust relationship policy",
+      "fields": [
+        {
+          "id": "iam_role_name",
+          "var_name": "role_name",
+          "label": "Role Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "dopa-ecs-execution-role",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9+=,.@-]{1,64}$",
+            "error_message": "1 to 64 characters. Alphanumeric and +=,.@- allowed."
+          },
+          "terraform": {
+            "resource": "aws_iam_role",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the IAM Role within the AWS account.",
+          "impact": "Renaming forces replacement of the IAM role.",
+          "learn_more": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html"
+        },
+        {
+          "id": "iam_assume_role_policy",
+          "var_name": "assume_role_policy",
+          "label": "Assume Role Policy Document (Trust Policy)",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "ecs-tasks.amazonaws.com",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_iam_role",
+            "argument": "assume_role_policy"
+          },
+          "why": "Defines which entities (e.g., ecs-tasks.amazonaws.com, ec2.amazonaws.com) are granted permission to assume this role.",
+          "impact": "Incorrect trust policies prevent instances or tasks from acquiring temporary credentials.",
+          "learn_more": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html"
+        }
+      ]
+    }
+  ]
+}

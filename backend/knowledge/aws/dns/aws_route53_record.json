@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_route53_record",
+  "display_name": "Route 53 DNS Record",
+  "category": "dns",
+  "description": "DNS entry mapping custom domain names to IPs, ALBs, CloudFront, or alias records.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Record Entry",
+      "description": "Domain name, record type, TTL, and values",
+      "fields": [
+        {
+          "id": "r53_record_name",
+          "var_name": "record_name",
+          "label": "Record Name (Subdomain)",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "api",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_route53_record",
+            "argument": "name"
+          },
+          "why": "Subdomain prefix (e.g., 'api' or 'app') or root domain name.",
+          "impact": "Updates DNS routing immediately upon propagation.",
+          "learn_more": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-creating.html"
+        },
+        {
+          "id": "r53_record_type",
+          "var_name": "type",
+          "label": "Record Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "A - IPv4 Address", "value": "A" },
+            { "label": "AAAA - IPv6 Address", "value": "AAAA" },
+            { "label": "CNAME - Canonical Name", "value": "CNAME" },
+            { "label": "TXT - Text Verification", "value": "TXT" },
+            { "label": "MX - Mail Exchange", "value": "MX" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "A",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_route53_record",
+            "argument": "type"
+          },
+          "why": "Determines DNS translation behavior.",
+          "impact": "Recreates record if type is changed.",
+          "learn_more": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html"
+        },
+        {
+          "id": "r53_ttl",
+          "var_name": "ttl",
+          "label": "TTL (Time-To-Live in Seconds)",
+          "ui_component": "number",
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": 300,
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_route53_record",
+            "argument": "ttl"
+          },
+          "why": "Duration DNS resolvers cache this record before querying Route 53 again.",
+          "impact": "Lower TTL allows faster migration or failover; higher TTL reduces Route 53 query costs.",
+          "learn_more": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html"
+        }
+      ]
+    }
+  ]
+}

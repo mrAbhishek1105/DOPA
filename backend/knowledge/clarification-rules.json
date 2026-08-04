@@ -69,6 +69,7 @@
     "trigger": {"application_type": "internal_tool"},
     "context_keywords": [],
     "question": "How many people in your organization will use this tool daily?",
+    "suggested_replies": ["Small (1-5)", "Medium (6-50)", "Large (50+)"],
     "extracts_field": "team_size",
     "priority": 2
   },
@@ -77,7 +78,8 @@
     "goal_id": "understand_scale",
     "trigger": {"application_type": "event_driven"},
     "context_keywords": [],
-    "question": "What kind of event throughput are we looking at? Hundreds per second, thousands, or more?",
+    "question": "What kind of event throughput are we looking at?",
+    "suggested_replies": ["Low (<1K/day)", "Medium (1K-100K/day)", "High (100K+/day)"],
     "extracts_field": "traffic",
     "priority": 2
   },
@@ -86,7 +88,8 @@
     "goal_id": "understand_scale",
     "trigger": {"application_type": "ai_workload"},
     "context_keywords": [],
-    "question": "How many inference requests do you expect per day? Is this batch processing or real-time serving?",
+    "question": "How many inference requests do you expect per day?",
+    "suggested_replies": ["Low (<1K/day)", "Medium (1K-100K/day)", "High (100K+/day)"],
     "extracts_field": "traffic",
     "priority": 2
   },
@@ -96,6 +99,7 @@
     "trigger": {"application_type": "streaming"},
     "context_keywords": [],
     "question": "How many concurrent viewers or listeners do you expect at peak?",
+    "suggested_replies": ["Low (<1K/day)", "Medium (1K-100K/day)", "High (100K+/day)"],
     "extracts_field": "traffic",
     "priority": 2
   },
@@ -115,6 +119,7 @@
     "trigger": {"application_type": "social_media"},
     "context_keywords": [],
     "question": "Will users exchange messages instantly like WhatsApp, or is this more like a forum where posts stay for a while?",
+    "suggested_replies": ["Yes — real-time", "No — async/batch"],
     "extracts_field": "realtime_latency",
     "priority": 3
   },
@@ -123,7 +128,8 @@
     "goal_id": "understand_latency",
     "trigger": {"application_type": "streaming"},
     "context_keywords": [],
-    "question": "Do you need sub-second latency for live content, or is buffered delivery acceptable?",
+    "question": "Do you need sub-second live latency, or is buffered delivery acceptable?",
+    "suggested_replies": ["Yes — real-time", "No — async/batch"],
     "extracts_field": "realtime_latency",
     "priority": 3
   },
@@ -133,6 +139,7 @@
     "trigger": {"application_type": "event_driven"},
     "context_keywords": [],
     "question": "Do events need to be processed in real-time, or is near-real-time or batch processing fine?",
+    "suggested_replies": ["Yes — real-time", "No — async/batch"],
     "extracts_field": "realtime_latency",
     "priority": 3
   },
@@ -142,6 +149,7 @@
     "trigger": {"application_type": "ai_workload"},
     "context_keywords": [],
     "question": "Does your model need to respond in real-time (sub-second), or is batch inference acceptable?",
+    "suggested_replies": ["Yes — real-time", "No — async/batch"],
     "extracts_field": "realtime_latency",
     "priority": 3
   },
@@ -152,6 +160,7 @@
     "trigger": {"application_type": "ecommerce"},
     "context_keywords": [],
     "question": "How critical is uptime for your store? Would a few minutes of downtime during off-hours be acceptable, or does it need to be always-on?",
+    "suggested_replies": ["Standard", "High (99.9%+)", "Multi-region DR"],
     "extracts_field": "availability",
     "priority": 4
   },
@@ -161,6 +170,7 @@
     "trigger": {"application_type": "saas"},
     "context_keywords": [],
     "question": "What kind of SLA are you promising your customers? 99.9% uptime, or enterprise-grade 99.99%?",
+    "suggested_replies": ["Standard", "High (99.9%+)", "Multi-region DR"],
     "extracts_field": "availability",
     "priority": 4
   },
@@ -170,6 +180,7 @@
     "trigger": {},
     "context_keywords": [],
     "question": "How critical is uptime? Standard availability, high availability with redundancy, or multi-region disaster recovery?",
+    "suggested_replies": ["Standard", "High (99.9%+)", "Multi-region DR"],
     "extracts_field": "availability",
     "priority": 10
   },
@@ -208,6 +219,7 @@
     "trigger": {"application_type": "social_media"},
     "context_keywords": [],
     "question": "Will users upload photos, videos, or other media? How much storage capacity are we looking at?",
+    "suggested_replies": ["Low (no media)", "Medium (images)", "High (video/heavy)"],
     "extracts_field": "media_storage",
     "priority": 6
   },
@@ -217,6 +229,7 @@
     "trigger": {"application_type": "streaming"},
     "context_keywords": [],
     "question": "How much video content will you be hosting? Are we talking gigabytes or terabytes?",
+    "suggested_replies": ["Low (no media)", "Medium (images)", "High (video/heavy)"],
     "extracts_field": "media_storage",
     "priority": 6
   },
@@ -245,6 +258,7 @@
     "trigger": {},
     "context_keywords": ["startup", "bootstrap", "side project", "hobby", "personal"],
     "question": "Sounds like you're keeping things lean. Should I optimize for cost efficiency, or do you have room to spend for better performance and reliability?",
+    "suggested_replies": ["Low (cost-optimized)", "Medium (balanced)", "High (performance-first)"],
     "extracts_field": "budget",
     "priority": 7
   },
@@ -254,6 +268,7 @@
     "trigger": {},
     "context_keywords": ["enterprise", "corporate", "large company", "fortune"],
     "question": "For an enterprise-grade setup, budget is usually less of a constraint. Should I still keep an eye on costs, or go all-in on reliability and scale?",
+    "suggested_replies": ["Low (cost-optimized)", "Medium (balanced)", "High (performance-first)"],
     "extracts_field": "budget",
     "priority": 7
   },
@@ -263,6 +278,7 @@
     "trigger": {},
     "context_keywords": [],
     "question": "What's your budget range for infrastructure? Low (optimize for cost), medium (balanced), or high (optimize for performance)?",
+    "suggested_replies": ["Low (cost-optimized)", "Medium (balanced)", "High (performance-first)"],
     "extracts_field": "budget",
     "priority": 10
   },
@@ -273,6 +289,7 @@
     "trigger": {"application_type": "ecommerce"},
     "context_keywords": [],
     "question": "Since you're handling payments, do you need PCI-DSS compliance? Any other regulatory requirements like GDPR?",
+    "suggested_replies": ["None", "SOC 2", "HIPAA", "PCI-DSS"],
     "extracts_field": "compliance",
     "priority": 8
   },
@@ -282,6 +299,7 @@
     "trigger": {"application_type": "saas"},
     "context_keywords": [],
     "question": "Does your SaaS need to meet any compliance standards? SOC 2 and HIPAA are common for B2B platforms.",
+    "suggested_replies": ["None", "SOC 2", "HIPAA", "PCI-DSS"],
     "extracts_field": "compliance",
     "priority": 8
   },
@@ -291,6 +309,7 @@
     "trigger": {},
     "context_keywords": [],
     "question": "Any compliance or regulatory requirements I should know about? SOC 2, HIPAA, PCI-DSS, GDPR, or none?",
+    "suggested_replies": ["None", "SOC 2", "HIPAA", "PCI-DSS"],
     "extracts_field": "compliance",
     "priority": 10
   }

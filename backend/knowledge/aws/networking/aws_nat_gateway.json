@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_nat_gateway",
+  "display_name": "NAT Gateway",
+  "category": "networking",
+  "description": "Enables instances in a private subnet to connect to outbound internet services safely.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Gateway Settings",
+      "description": "Subnet placement, public connectivity, and Elastic IP binding",
+      "fields": [
+        {
+          "id": "nat_subnet_id",
+          "var_name": "subnet_id",
+          "label": "Public Subnet ID",
+          "ui_component": "subnet",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "terraform": {
+            "resource": "aws_nat_gateway",
+            "argument": "subnet_id"
+          },
+          "why": "NAT Gateways must be positioned in a Public Subnet with a route to an Internet Gateway.",
+          "impact": "Recreates the NAT Gateway if changed, temporarily severing outbound internet connectivity for private subnets.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+        },
+        {
+          "id": "nat_connectivity_type",
+          "var_name": "connectivity_type",
+          "label": "Connectivity Mode",
+          "ui_component": "select",
+          "options": [
+            { "label": "Public (Internet Accessible Outbound)", "value": "public" },
+            { "label": "Private (VPC / On-Prem Routing Only)", "value": "private" }
+          ],
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": "public",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_nat_gateway",
+            "argument": "connectivity_type"
+          },
+          "why": "Private NAT Gateways do not require an EIP and are used for overlapping internal networks.",
+          "impact": "Private connectivity mode prevents outbound access to the public internet.",
+          "learn_more": "https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-scenarios.html"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_lb_listener",
+  "display_name": "LB Listener",
+  "category": "networking",
+  "description": "Checks for connection requests from clients on a specified port/protocol and forwards them to Target Groups.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "Listener Frontend",
+      "description": "Port, protocol, and default routing action",
+      "fields": [
+        {
+          "id": "listener_port",
+          "var_name": "port",
+          "label": "Listen Port",
+          "ui_component": "number",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": 443,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": 80,
+            "production": 443
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "port"
+          },
+          "why": "Port exposed on the load balancer for incoming frontend client connections.",
+          "impact": "Commonly port 80 for HTTP or port 443 for HTTPS.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+        },
+        {
+          "id": "listener_protocol",
+          "var_name": "protocol",
+          "label": "Listen Protocol",
+          "ui_component": "select",
+          "options": [
+            { "label": "HTTP", "value": "HTTP" },
+            { "label": "HTTPS (TLS Encryption)", "value": "HTTPS" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "HTTPS",
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "protocol"
+          },
+          "why": "Determines whether client traffic is unencrypted (HTTP) or encrypted via SSL/TLS certificates (HTTPS).",
+          "impact": "HTTPS requires specifying a valid ACM SSL Certificate ARN.",
+          "learn_more": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html"
+        },
+        {
+          "id": "listener_certificate_arn",
+          "var_name": "certificate_arn",
+          "label": "ACM Certificate ARN",
+          "ui_component": "text",
+          "importance": "optional",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "conditions": {
+            "show_if": {
+              "field_id": "listener_protocol",
+              "equals": "HTTPS"
+            },
+            "required_if": {
+              "field_id": "listener_protocol",
+              "equals": "HTTPS"
+            }
+          },
+          "terraform": {
+            "resource": "aws_lb_listener",
+            "argument": "certificate_arn"
+          },
+          "why": "AWS Certificate Manager (ACM) SSL certificate used for terminating HTTPS traffic.",
+          "impact": "Mandatory for HTTPS listeners.",
+          "learn_more": "https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+        }
+      ]
+    }
+  ]
+}

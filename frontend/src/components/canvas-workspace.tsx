@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { configurationApi } from "@/lib/api/configuration";
+
 interface CanvasWorkspaceProps {
   projectId: string;
 }
@@ -39,6 +41,12 @@ export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false);
   const queryClient = useQueryClient();
   const { mode, status } = useWorkspaceMode(projectId);
+
+  const { data: readinessData } = useQuery({
+    queryKey: ["config-readiness", projectId],
+    queryFn: () => configurationApi.getReadiness(projectId),
+    refetchInterval: 3000,
+  });
 
   const { data: projectStatus } = useQuery({
     queryKey: ["status", projectId],
@@ -129,7 +137,8 @@ export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
   }, 0);
 
   // Can generate terraform only if graph has nodes AND project is in right mode
-  const canGenerateTerraform = hasGraph && canExecute;
+  const isAllConfigured = readinessData ? (readinessData.is_complete || readinessData.readiness_score >= 100) : true;
+  const canGenerateTerraform = hasGraph && isAllConfigured;
 
   // Architecture options from the recommendations endpoint
   const options: RecommendationOption[] = recommendationsData?.options ?? [];
@@ -143,8 +152,16 @@ export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
     <div className="flex flex-col h-full relative bg-[#0B1120] rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl">
       {/* TOP CONTROLS BAR */}
       <div className="h-14 border-b border-slate-800/60 bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-4 z-20 shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="text-xs font-semibold text-slate-400">Architecture Workbench</span>
+          {hasGraph && (
+            <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-950/60 border border-slate-800 rounded-lg">
+              <span className="text-[10px] text-slate-500 uppercase font-bold">Infra Readiness</span>
+              <span className={`text-xs font-mono font-bold ${isAllConfigured ? "text-emerald-400" : "text-amber-400"}`}>
+                {readinessData?.readiness_score ?? 100}%
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3">
@@ -153,22 +170,24 @@ export function CanvasWorkspace({ projectId }: CanvasWorkspaceProps) {
             <button
               onClick={handleDownload}
               disabled={runPipelineMutation.isPending}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]"
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse"
             >
               {runPipelineMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <FileCode size={14} />}
-              Generate Terraform
+              Generate Terraform Code
             </button>
           ) : (
             <div
-              title={!hasGraph ? "Add resources to the canvas first" : "Waiting for architecture to be ready"}
+              title={!hasGraph ? "Add resources to the canvas first" : "Complete all mandatory fields to unlock Terraform"}
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-slate-700/60 text-slate-500 text-xs font-medium cursor-not-allowed select-none group relative"
             >
               <FileCode size={14} />
               Generate Terraform
               {/* Tooltip explaining what's missing */}
-              <div className="absolute bottom-full right-0 mb-2 w-52 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-[10px] text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-2xl">
+              <div className="absolute bottom-full right-0 mb-2 w-64 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-[10px] text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-2xl">
                 {!hasGraph
                   ? "⚠ Canvas has no resources. Select an architecture or drag services onto the canvas."
+                  : !isAllConfigured
+                  ? "⚠ Fill mandatory parameters for all resources to reach 100% Infra Readiness before generating Terraform."
                   : "⚠ Architecture must reach review stage before generating Terraform."}
               </div>
             </div>

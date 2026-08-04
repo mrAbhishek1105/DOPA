@@ -8,6 +8,8 @@ export interface ChatMessage {
   id: string;
   role: "user" | "dopa";
   content: string;
+  suggested_replies?: string[];
+  field_being_asked?: string;
 }
 
 export interface HistoryEntry {

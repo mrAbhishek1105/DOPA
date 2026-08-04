@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_wafv2_web_acl",
+  "display_name": "WAFv2 Web ACL",
+  "category": "security",
+  "description": "Web Application Firewall protecting CloudFront distributions, ALBs, or API Gateways against web exploits and bots.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "ACL Definition",
+      "description": "Scope, naming, and default action",
+      "fields": [
+        {
+          "id": "waf_name",
+          "var_name": "waf_name",
+          "label": "Web ACL Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "app-web-acl",
+            "source": "dopa_recommended"
+          },
+          "validation": {
+            "regex": "^[a-zA-Z0-9_-]{1,128}$",
+            "error_message": "1 to 128 alphanumeric characters, hyphens, and underscores."
+          },
+          "terraform": {
+            "resource": "aws_wafv2_web_acl",
+            "argument": "name"
+          },
+          "why": "Unique identifier for the WAF Web ACL rule set.",
+          "impact": "Changing name forces resource replacement.",
+          "learn_more": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+        },
+        {
+          "id": "waf_scope",
+          "var_name": "scope",
+          "label": "Deployment Scope",
+          "ui_component": "select",
+          "options": [
+            { "label": "Regional (ALB, API Gateway, AppSync)", "value": "REGIONAL" },
+            { "label": "Global (CloudFront CDN Edge)", "value": "CLOUDFRONT" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "REGIONAL",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_wafv2_web_acl",
+            "argument": "scope"
+          },
+          "why": "CLOUDFRONT scope Web ACLs must be deployed specifically in the us-east-1 region.",
+          "impact": "Forces replacement if modified.",
+          "learn_more": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-web-acl-creating.html"
+        },
+        {
+          "id": "waf_default_action",
+          "var_name": "default_action",
+          "label": "Default Action",
+          "ui_component": "select",
+          "options": [
+            { "label": "Allow Unmatched Traffic", "value": "allow" },
+            { "label": "Block Unmatched Traffic", "value": "block" }
+          ],
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "allow",
+            "source": "aws"
+          },
+          "terraform": {
+            "resource": "aws_wafv2_web_acl",
+            "argument": "default_action"
+          },
+          "why": "Action taken on incoming web requests if no explicitly defined inspection rules match.",
+          "impact": "Setting to 'block' without configured rules drops all incoming web traffic.",
+          "learn_more": "https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-default-action.html"
+        }
+      ]
+    }
+  ]
+}

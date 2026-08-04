@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0.0",
+  "resource_type": "aws_s3_bucket",
+  "display_name": "Amazon S3 Bucket",
+  "category": "storage",
+  "description": "Provides an S3 bucket resource for object-based cloud storage.",
+  "sections": [
+    {
+      "id": "general",
+      "title": "General Settings",
+      "description": "Basic bucket naming and ownership configuration",
+      "fields": [
+        {
+          "id": "s3_bucket_name",
+          "var_name": "bucket_name",
+          "label": "Bucket Name",
+          "ui_component": "text",
+          "importance": "required",
+          "visibility": "basic",
+          "default": {
+            "value": "",
+            "source": "user"
+          },
+          "recommended": {
+            "development": "dev-app-data-bucket",
+            "production": "prod-app-data-bucket-us-east-1"
+          },
+          "validation": {
+            "regex": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+            "error_message": "3 to 63 characters. Lowercase letters, numbers, hyphens, and periods only."
+          },
+          "terraform": {
+            "resource": "aws_s3_bucket",
+            "argument": "bucket"
+          },
+          "why": "S3 bucket names must be globally unique across all AWS accounts worldwide.",
+          "impact": "Changing the bucket name on an existing deployment will destroy and recreate the bucket, causing catastrophic data loss if unprotected.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        },
+        {
+          "id": "s3_force_destroy",
+          "var_name": "force_destroy",
+          "label": "Force Destroy on Delete",
+          "ui_component": "switch",
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": false,
+            "source": "dopa_recommended"
+          },
+          "recommended": {
+            "development": true,
+            "production": false
+          },
+          "terraform": {
+            "resource": "aws_s3_bucket",
+            "argument": "force_destroy"
+          },
+          "why": "Allows deletion of non-empty buckets during infrastructure destroy commands.",
+          "impact": "If set to true in production, running `terraform destroy` will permanently purge all stored data without safety prompts.",
+          "learn_more": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#force_destroy"
+        }
+      ]
+    },
+    {
+      "id": "security_and_encryption",
+      "title": "Security & Encryption",
+      "description": "Server-side encryption and access restriction policies",
+      "fields": [
+        {
+          "id": "s3_sse_algorithm",
+          "var_name": "sse_algorithm",
+          "label": "Encryption Type",
+          "ui_component": "select",
+          "options": [
+            { "label": "Amazon S3 Managed Key (SSE-S3)", "value": "AES256" },
+            { "label": "AWS Key Management Service (SSE-KMS)", "value": "aws:kms" }
+          ],
+          "importance": "recommended",
+          "visibility": "basic",
+          "default": {
+            "value": "AES256",
+            "source": "aws"
+          },
+          "recommended": {
+            "development": "AES256",
+            "production": "aws:kms"
+          },
+          "terraform": {
+            "resource": "aws_s3_bucket_server_side_encryption_configuration",
+            "argument": "rule.apply_server_side_encryption_by_default.sse_algorithm"
+          },
+          "why": "Encrypts objects at rest prior to storing them on disk.",
+          "impact": "KMS provides centralized audit trails for key usage via CloudTrail, whereas AES256 offers basic automated encryption with no extra cost.",
+          "learn_more": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/serv-side-encryption.html"
+        },
+        {
+          "id": "s3_kms_key_arn",
+          "var_name": "kms_key_arn",
+          "label": "KMS Master Key ARN",
+          "ui_component": "text",
+          "importance": "optional",
+          "visibility": "advanced",
+          "default": {
+            "value": "",
+            "source": "aws"
+          },
+          "conditions": {
+            "show_if": {
+              "field_id": "s3_sse_algorithm",
+              "equals": "aws:kms"
+            },
+            "required_if": {
+              "field_id": "s3_sse_algorithm",
+              "equals": "aws:kms"
+            }
+          },
+          "validation": {
+            "regex": "^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key\\/.+$",
+            "error_message": "Must be a valid KMS Key ARN (e.g., arn:aws:kms:us-east-1:123456789012:key/uuid)."
+          },
+          "terraform": {
+            "resource": "aws_s3_bucket_server_side_encryption_configuration",
+            "argument": "rule.apply_server_side_encryption_by_default.kms_master_key_id"
+          },
+          "why": "Customer managed KMS keys allow granular RBAC and cross-account access policies.",
+          "impact": "If the specified KMS key is disabled or destroyed, all data inside the bucket becomes permanently unreadable.",
+          "learn_more": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id"
+        }
+      ]
+    },
+    {
+      "id": "tags",
+      "title": "Resource Tags",
+      "description": "Metadata key-value pairs for cost tracking and ownership",
+      "fields": [
+        {
+          "id": "s3_tags",
+          "var_name": "tags",
+          "label": "Tags",
+          "ui_component": "tags",
+          "importance": "optional",
+          "visibility": "basic",
+          "default": {
+            "value": {
+              "Environment": "dev",
+              "ManagedBy": "DOPA"
+            },
+            "source": "dopa_recommended"
+          },
+          "terraform": {
+            "resource": "aws_s3_bucket",
+            "argument": "tags"
+          },
+          "why": "Organizes resources across environments and maps cost allocation tags in AWS Cost Explorer.",
+          "impact": "No operational impact on infrastructure functionality.",
+          "learn_more": "https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html"
+        }
+      ]
+    }
+  ]
+}
