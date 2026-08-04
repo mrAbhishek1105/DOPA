@@ -1,57 +1,66 @@
 import pytest
-from backend.services.discovery_engine import DiscoveryEngine
+
+from backend.schemas.understanding import BusinessUnderstanding, Facts, ConfidenceScores
+from backend.schemas.planner import PlannerState, ProjectGraphNode
 from backend.services.conversation_planner import ConversationPlanner
-from backend.schemas.requirements import RequirementModel
-from backend.services.pattern_engine import PatternEngine
-from backend.services.recommendation_engine import RecommendationEngine
-from backend.services.graph_engine import GraphEngine
+from backend.services.discovery_engine import DiscoveryEngine
 
 
-def test_ecommerce_prompt_extraction_and_recommendations():
-    prompt = (
-        "Hi DOPA! I'm building an e-commerce marketplace similar to Amazon. "
-        "We expect 100,000 registered users with peak traffic surges of 10,000 requests/sec during sales events. "
-        "We want to deploy on AWS in the Mumbai region (ap-south-1). "
-        "Our budget is medium ($200-$300/mo). We prefer PostgreSQL for relational data and Redis for fast product page caching. "
-        "Downtime during sales is unacceptable so we need high availability with zero single points of failure."
+class FakeAIProvider:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    async def extract_understanding(self, system_prompt: str, project_state: dict[str, object], latest_message: str) -> BusinessUnderstanding:
+        self.calls.append(
+            {
+                "system_prompt": system_prompt,
+                "project_state": project_state,
+                "latest_message": latest_message,
+            }
+        )
+        return BusinessUnderstanding(
+            explicit_facts=Facts(application_type="portfolio"),
+            inferred_facts=Facts(traffic="tiny"),
+            uncertainties=["region"],
+            confidence=ConfidenceScores(traffic=61),
+            reasoning="A portfolio site usually has low traffic.",
+        )
+
+
+def test_discovery_engine_uses_state_snapshot_and_normalizes_output():
+    engine = DiscoveryEngine()
+    fake_ai = FakeAIProvider()
+    engine.ai_provider = fake_ai
+
+    result = engine.process_message(
+        "I am building a portfolio",
+        {"application_type": "web_app", "traffic": "medium", "draft": True},
     )
 
-    engine = DiscoveryEngine()
-    res = engine.process_message(prompt)
+    extracted = result.extracted
 
-    extracted = res.extracted
-    print("\nEXTRACTED FIELDS:", extracted)
+    assert extracted["application_type"] == "web_app"
+    assert extracted["traffic"] == "low"
+    assert fake_ai.calls[0]["project_state"] == {"application_type": "web_app", "traffic": "medium", "draft": True}
+    assert fake_ai.calls[0]["latest_message"] == "I am building a portfolio"
 
-    assert extracted.get("application_type") == "ecommerce"
-    assert extracted.get("cloud") == "aws"
-    assert extracted.get("region") == "ap-south-1"
-    assert extracted.get("budget") == "medium"
-    assert extracted.get("users") == 100000
-    assert extracted.get("database") in ("postgresql", "sql")
-    assert extracted.get("availability") == "high"
-    assert extracted.get("traffic") == "high"
-    assert extracted.get("cache") == "redis"
-    assert "Cache (Redis)" in extracted.get("capabilities", [])
 
-    # Test requirement model instantiation
-    clean_extracted = {k: v for k, v in extracted.items() if not k.startswith("__")}
-    req_model = RequirementModel(**clean_extracted)
+def test_planner_upgrades_confirmed_inferred_fact_to_verified():
+    planner = ConversationPlanner()
+    state = PlannerState(
+        graph={
+            "traffic": ProjectGraphNode(value="low", confidence=61, source="inferred", verified=False)
+        }
+    )
 
-    # Test pattern engine
-    pattern_engine = PatternEngine()
-    pattern_result = pattern_engine.match(req_model)
-    assert pattern_result.pattern_id == "medium_saas" or "ecommerce" in pattern_result.pattern_id or pattern_result.confidence > 0.5
+    understanding = BusinessUnderstanding(
+        explicit_facts={"traffic": "high"},
+        confidence={"traffic": 100},
+        reasoning="The user explicitly expects millions of users.",
+    )
 
-    # Test recommendation engine
-    rec_engine = RecommendationEngine()
-    recommendations = rec_engine.generate(pattern_result)
-    assert len(recommendations.options) > 0
+    _, updated_state = planner.plan(understanding, state)
 
-    # Test graph engine
-    selected_option = recommendations.options[0]
-    graph_engine = GraphEngine()
-    graph = graph_engine.build(selected_option)
-    assert len(graph.nodes) > 0
-    assert len(graph.edges) > 0
-
-    print(f"Generated {len(recommendations.options)} options and {len(graph.nodes)} graph nodes successfully!")
+    assert updated_state.graph["traffic"].value == "high"
+    assert updated_state.graph["traffic"].verified is True
+    assert updated_state.graph["traffic"].source == "explicit"

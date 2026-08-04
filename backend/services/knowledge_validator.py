@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import re
@@ -17,6 +17,7 @@ class KnowledgeValidationError(Exception):
 # Used for basic schema validation.
 FILE_SCHEMAS: dict[str, str] = {
     "architecture-patterns.json": "list",
+    "architecture-ontology.json": "dict",
     "service-capabilities.json": "list",
     "tradeoff-rules.json": "list",
     "recommendation-rules.json": "list",
@@ -91,7 +92,7 @@ class KnowledgeValidator:
             valid_files=valid_count,
         )
 
-    # ── Schema Validation ──────────────────────────────────
+    # Schema Validation
 
     def _load_and_validate_schema(self, filename: str, filepath: Path, expected_type: str) -> Any:
         """Try to load JSON and validate top-level type. Returns parsed data or None on error."""
@@ -140,7 +141,6 @@ class KnowledgeValidator:
             if missing:
                 self._record_issue(filename, "error", "missing_field",
                                    f"Entry {idx} ('{entry.get('pattern_id', 'unknown')}') missing fields: {missing}")
-            # Validate pattern_id naming convention
             pattern_id = entry.get("pattern_id", "")
             if pattern_id and not ID_PATTERN.match(pattern_id):
                 self._record_issue(filename, "warning", "naming_convention",
@@ -195,7 +195,7 @@ class KnowledgeValidator:
                 self._record_issue(filename, "warning", "missing_edges",
                                    f"Template '{entry.get('pattern_id', 'unknown')}' has no edges")
 
-    # ── Reference Collection ───────────────────────────────
+    # Reference Collection
 
     def _collect_references(self, filename: str, data: Any) -> None:
         """Collect cross-file reference identifiers."""
@@ -217,7 +217,7 @@ class KnowledgeValidator:
                 if svc:
                     self._service_names.add(svc)
 
-    # ── Cross-File Reference Validation ─────────────────────
+    # Cross-File Reference Validation
 
     def _validate_cross_references(self) -> None:
         """Check that references between files are consistent."""
@@ -253,7 +253,6 @@ class KnowledgeValidator:
                         f"references pattern_id '{pattern_ref}' which does not exist in architecture-patterns.json",
                     )
 
-        # Check pattern default_services against service-capabilities
         patterns_file = self.knowledge_dir / "architecture-patterns.json"
         if patterns_file.exists() and self._service_names:
             try:
@@ -270,7 +269,7 @@ class KnowledgeValidator:
                             f"pattern '{entry.get('pattern_id', '')}' references unknown service '{svc}'",
                         )
 
-    # ── Helpers ─────────────────────────────────────────────
+    # Helpers
 
     def _record_issue(self, file: str, severity: str, category: str, message: str) -> None:
         self.issues.append(KnowledgeIssue(

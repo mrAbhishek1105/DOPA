@@ -80,7 +80,7 @@ class ConversationPlanner:
         state.turn_count += 1
         
         # 1. Update Graph with Explicit Facts
-        for field, value in understanding.explicit_facts.items():
+        for field, value in understanding.explicit_facts.model_dump(exclude_none=True).items():
             if field in self.ontology:
                 # User stated this explicitly. Upgrade to verified.
                 state.graph[field] = ProjectGraphNode(
@@ -91,13 +91,16 @@ class ConversationPlanner:
                 )
                 
         # 2. Update Graph with Inferred Facts (if not already verified)
-        for field, fact in understanding.inferred_facts.items():
+        for field, value in understanding.inferred_facts.model_dump(exclude_none=True).items():
             if field in self.ontology:
                 existing = state.graph.get(field)
                 if not existing or not existing.verified:
+                    conf = getattr(understanding.confidence, field, 50)
+                    if conf is None:
+                        conf = 50
                     state.graph[field] = ProjectGraphNode(
-                        value=fact.value,
-                        confidence=fact.confidence,
+                        value=value,
+                        confidence=conf,
                         source="inferred",
                         verified=False
                     )

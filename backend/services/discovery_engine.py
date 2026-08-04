@@ -1,6 +1,6 @@
-import json
+﻿import asyncio
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from backend.schemas.understanding import BusinessUnderstanding
 from backend.services.ai.gemini import GeminiProvider
@@ -31,33 +31,71 @@ Provide your confidence (0-100) for each inferred fact.
 List uncertainties (fields where you have no clue, e.g. region if not mentioned).
 """
 
+
+class DiscoveryResult:
+    """Compatibility wrapper that works both with await and legacy sync callers."""
+
+    def __init__(self, awaitable):
+        self._awaitable = awaitable
+        self._resolved: BusinessUnderstanding | None = None
+
+    async def _resolve_async(self) -> BusinessUnderstanding:
+        if self._resolved is None:
+            self._resolved = await self._awaitable
+        return self._resolved
+
+    def _resolve_sync(self) -> BusinessUnderstanding:
+        if self._resolved is not None:
+            return self._resolved
+
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            self._resolved = asyncio.run(self._resolve_async())
+            return self._resolved
+
+        raise RuntimeError("DiscoveryResult must be awaited inside async code.")
+
+    def __await__(self):
+        return self._resolve_async().__await__()
+
+    def __getattr__(self, name: str):
+        return getattr(self._resolve_sync(), name)
+
+    @property
+    def extracted(self) -> Dict[str, Any]:
+        return self._resolve_sync().extracted
+
+
 class DiscoveryEngine:
     """
     AI-driven discovery engine that extracts business understanding from a conversation snapshot.
     """
-    
+
     def __init__(self):
-        # Could be injected based on config
         self.ai_provider = GeminiProvider()
 
-    async def process_message(
+    async def _process_message(
         self,
         latest_message: str,
-        current_state: Dict[str, Any]
+        current_state: Dict[str, Any],
     ) -> BusinessUnderstanding:
-        """
-        Extract structured business understanding from the current project state and latest message.
-        """
         logger.info("Extracting business understanding via AI")
-        
-        # 1. Ask AI for understanding
+
         understanding = await self.ai_provider.extract_understanding(
             system_prompt=SYSTEM_PROMPT,
             project_state=current_state,
-            latest_message=latest_message
+            latest_message=latest_message,
         )
-        
-        # 2. Normalize the AI's output to canonical ontology values
-        understanding = Normalizer.normalize(understanding)
-        
-        return understanding
+
+        return Normalizer.normalize(understanding)
+
+    def process_message(
+        self,
+        latest_message: str,
+        current_state: Dict[str, Any] | None = None,
+    ) -> DiscoveryResult:
+        """
+        Return a result that can be awaited by async callers or resolved lazily by sync callers.
+        """
+        return DiscoveryResult(self._process_message(latest_message, current_state or {}))

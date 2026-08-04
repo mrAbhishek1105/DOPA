@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -12,6 +12,7 @@ class KnowledgeLoader:
 
     REQUIRED_FILES = (
         "architecture-patterns.json",
+        "architecture-ontology.json",
         "service-capabilities.json",
         "tradeoff-rules.json",
         "recommendation-rules.json",
@@ -44,7 +45,7 @@ class KnowledgeLoader:
         for filename in self.REQUIRED_FILES:
             loaded[filename] = self.load_json(filename)
 
-        # Validate all knowledge files at startup — fail fast on schema/reference errors
+        # Validate all knowledge files at startup - fail fast on schema/reference errors
         if self._validate:
             validator = KnowledgeValidator(self.knowledge_dir)
             result = validator.validate_all()
